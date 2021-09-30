@@ -1,3 +1,4 @@
+require('dotenv').config()
 const  { Telegraf, Markup } = require('telegraf');
 const { sale, allOrders, allSalesToday } = require('./constants')
 const axios = require('axios');
@@ -5,8 +6,8 @@ const cron = require('node-cron');
 
 const config = require('./config');
 const data = require('./data');
-
-const bot = new Telegraf(config.token);
+const botToken = process?.env?.BOT_TOKEN
+const bot = new Telegraf(botToken);
 
 bot.context.db = {
 	orders: [],
@@ -14,9 +15,9 @@ bot.context.db = {
 	fbsDate: `2021-09-24T14:00:00.568Z`,
 }
 
-cron.schedule('*/5 * * * * *', async () => {
-	await getOrders();
-});
+// cron.schedule('*/5 * * * * *', async () => {
+// 	await getOrders();
+// });
 
 bot.start(async (ctx) => {
 	if (config.admins.includes(ctx.from.id)) {
