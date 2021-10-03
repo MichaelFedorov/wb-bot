@@ -1,35 +1,48 @@
 require('dotenv').config()
-const  { Telegraf, Markup } = require('telegraf');
-const { sale, allOrders, allSalesToday } = require('./constants')
+const { Telegraf, session, Scenes: { Stage }, Markup } = require('telegraf');
+const startWizard = require ('./controllers/start');
+const tasksScene = require ('./controllers/tasks');
+
+const { sale, allOrders, allSalesToday } = require('./util/constants')
 const axios = require('axios');
-const cron = require('node-cron');
+// const cron = require('node-cron');
 
 const config = require('./config');
 const data = require('./data');
-const botToken = process?.env?.BOT_TOKEN
-const bot = new Telegraf(botToken);
 
-bot.context.db = {
-	orders: [],
-	ordersTotal: 0,
-	fbsDate: `2021-09-24T14:00:00.568Z`,
-}
+const bot = new Telegraf(process?.env?.BOT_TOKEN);
+
+const stage = new Stage([
+	startWizard,
+	tasksScene
+]);
+
+bot.use(session());
+bot.use(stage.middleware());
+
+bot.start(async (ctx) => ctx.scene.enter('start'));
+bot.hears('📦 Сборочные задания', ctx => ctx.scene.enter('tasks'));
+// bot.context.db = {
+// 	orders: [],
+// 	ordersTotal: 0,
+// 	fbsDate: `2021-09-24T14:00:00.568Z`,
+// }
 
 // cron.schedule('*/5 * * * * *', async () => {
 // 	await getOrders();
 // });
 
-bot.start(async (ctx) => {
-	if (config.admins.includes(ctx.from.id)) {
-		await ctx.reply('Бот активен...', Markup
-			.keyboard([
-				[allOrders, sale],
-				[allSalesToday]
-			])
-			.resize()
-		);
-	}
-})
+// bot.start(async (ctx) => {
+// 	if (config.admins.includes(ctx.from.id)) {
+// 		await ctx.reply('Бот активен...', Markup
+// 			.keyboard([
+// 				[allOrders, sale],
+// 				[allSalesToday]
+// 			])
+// 			.resize()
+// 		);
+// 	}
+// })
 
 bot.hears(sale, (ctx) => {
 	ctx.db.orders = [],
