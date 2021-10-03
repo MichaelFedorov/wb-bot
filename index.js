@@ -1,7 +1,7 @@
 require('dotenv').config()
 const { Telegraf, session, Scenes: { Stage }, Markup } = require('telegraf');
-const startWizard = require ('./controllers/start');
-const tasksScene = require ('./controllers/tasks');
+const startWizard = require('./controllers/start');
+const tasksScene = require('./controllers/tasks');
 
 const { sale, allOrders, allSalesToday } = require('./util/constants')
 const axios = require('axios');
@@ -21,6 +21,7 @@ bot.use(session());
 bot.use(stage.middleware());
 
 bot.start(async (ctx) => ctx.scene.enter('start'));
+stage.command('start', ctx => ctx.scene.leave())
 bot.hears('📦 Сборочные задания', ctx => ctx.scene.enter('tasks'));
 // bot.context.db = {
 // 	orders: [],
@@ -107,7 +108,6 @@ const newOrderReplyWithPhoto = (order, ctx) => {
 	orderArticle = data.report.find(item => item.barcode === order.barcode).article;
 	return ctx.replyWithPhoto({ url: `https://images.wbstatic.net/big/new/${orderArticle.substr(0,4)}0000/${orderArticle}-1.jpg` });
 }
-
 
 const newOrderReplyHtml = (order) => {
 	const msg = `

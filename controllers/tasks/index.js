@@ -1,17 +1,18 @@
 const { Telegraf, Scenes : { Stage, BaseScene } } = require('telegraf');
 //const { validateEmail } = require('./helpers');
-const axios = require('axios');
 
 const { ordersUrl } = require('../../config');
 
 const { mainKeyboard, tasksKeyboard } = require('../../util/keyboards');
+const { newTasksInlineKeyboard } = require('./helpers');
+const { getNewTasks, getNewTasksInitialMsg } = require('./actions');
 
 const { leave } = Stage;
 
 const tasks = new BaseScene('tasks');
 
 tasks.enter(async (ctx) => {
-    try{
+    try {
         const uid = String(ctx.from.id);
     //   const user = await User.findById(uid);
     //   const { mainKeyboard } = getMainKeyboard(ctx);
@@ -36,12 +37,23 @@ tasks.enter(async (ctx) => {
     //     await newUser.save();
         await ctx.reply('Выберите тип заданиий', tasksKeyboard);
     }
-    catch{
+    catch {
         console.error()
     }
 //   }
 });
 tasks.hears('⬅️ Назад', ctx => ctx.scene.leave())
+
+tasks.hears('🆕 Новые', async ctx => {
+        await getNewTasks(ctx);
+        const msg = await getNewTasksInitialMsg(ctx);
+        await ctx.replyWithHTML(msg, newTasksInlineKeyboard);
+})
+
+tasks.action('seeAllNew', async ctx =>{
+    await ctx.answerCbQuery();
+    getNew
+})
 
 tasks.leave(async ctx => {
   await ctx.reply('Чем могу помочь?', mainKeyboard);
