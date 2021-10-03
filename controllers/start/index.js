@@ -74,7 +74,6 @@ const startWizard = new WizardScene(
 );
 
 
-
 // start.enter(async (ctx) => {
 //   const uid = String(ctx.from.id);
 // //   const user = await User.findById(uid);
