@@ -17,49 +17,58 @@ const getStocks = async (ctx) =>  {
     })
 }
 
-const getNewTasks = async (ctx) => {
+const getTasks = async (ctx, status) => {
     // TODO date = - 4 days from now
-    const date = '2021-09-27T00:00:00.522Z';
+    const date = '2021-10-01T00:00:00.522Z';
     await getStocks(ctx);
 
-    await axios.get(`${ordersUrl}${date}&status=1&take=1000&skip=0`, {
+    await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
         headers: {
             authorization: ctx.session.apiKey
         }
     })
     .then((response) => {
         const tasks = response.data.orders.reverse();
-		newTasks = tasks.map(task => {
+		const tasksList = tasks.map(task => {
 			return {
 				...task,
 				...ctx.session.stocks.find(item => item.barcode === task.barcode)
 			}
 		});
-        ctx.session.newTasks = newTasks;
+        if (status === 0 ) {
+            ctx.session.newTasks = tasksList.filter(task => task.status === status);
+        } else if (status === 1) {
+            ctx.session.onAssemblyTasks = tasksList.filter(task => task.status === status);
+        }
+        else if (status === 2) {
+            ctx.session.readyTasks = tasksList.filter(task => task.status === status);
+        }
     })
     .catch((e) => {
         console.log(e)
     })
 };
 
-const getNewTasksInitialMsg = async (ctx) => {
+const getTasksMsg = async (ctx, all) => {
     let msg = '';
-	ctx.session.newTasks?.forEach((task, index) => {
-        if (index > 9) return
+    const tasks = ctx.session.tasks.slice(ctx.session.firstTask, ctx.session.lastTask);
+	tasks?.forEach((task, index) => {
 		msg = `${msg}
 --------------
-📦 0${index + 1} | <b>${task.subject}</b> | ${task.article} | ${task.size.split('/')[0]} | ${task.totalPrice/100} ₽
+📦 0${ctx.session.firstTask + index + 1} | <b>${task.subject}</b> | ${task.article} | ${task.size.split('/')[0]} | ${task.totalPrice/100} ₽
 шк ${task.barcode} | стикер ${task.sticker.wbStickerId}
+<b>В наличии:</b> ${task.stock} шт.
 `});
+
 	msg += 
     `
 
-Показано <b>10</b> из <b>${ctx.session.newTasks?.length}</b> новых заданий. `;
+Показано c <b>${ctx.session.firstTask + 1}</b> по <b>${ctx.session.lastTask}</b> из <b>${ctx.session.tasks.length}</b> заданий. `;
 
     return msg;
 }
 
 module.exports = {
-    getNewTasks,
-    getNewTasksInitialMsg
+    getTasks,
+    getTasksMsg,
 }
