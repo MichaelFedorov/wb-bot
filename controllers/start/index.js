@@ -1,76 +1,78 @@
-const { Telegraf, Scenes : { Stage, WizardScene } } = require('telegraf');
-const { validateEmail } = require('./helpers');
-const axios = require('axios');
+const {
+  Telegraf,
+  Scenes: { WizardScene },
+} = require("telegraf");
+const { validateEmail } = require("./helpers");
+const axios = require("axios");
 
-const { ordersUrl } = require('../../config');
+const { ordersUrl } = require("../../config");
 
-// import { languageChangeAction } from './actions';
-// import { getLanguageKeyboard } from './helpers';
-// import User from '../../models/User';
-const { mainKeyboard } = require('../../util/keyboards');
+const { mainKeyboard } = require("../../util/keyboards");
 
 const askEmail = async (ctx) => {
-    await ctx.reply('Введите ваш email');
-    return ctx.wizard.next();
-}
+  await ctx.reply("Введите ваш email");
+  return ctx.wizard.next();
+};
 
-const emailHandler = Telegraf.on('text', async ctx => {
-    if (validateEmail(ctx.message.text)) {
+const emailHandler = Telegraf.on("text", async (ctx) => {
+  if (validateEmail(ctx.message.text)) {
+    ctx.scene.state.email = ctx.message.text;
 
-        ctx.scene.state.email = ctx.message.text;
-
-        await ctx.replyWithHTML(`Отлично! Далее введите <b>API ключ</b> от новой версии API. 
+    await ctx.replyWithHTML(`Отлично! Далее введите <b>API ключ</b> от новой версии API. 
 Если вы его еще не создавали, зайдите в личный кабинет WB и выполните необходимые действия.`);
 
-        return ctx.wizard.next();
-    } else {
-        await ctx.replyWithHTML(`❗️ <b>Вы ввели неверный email</b>. Проверьте и введите снова`);
-    }
+    return ctx.wizard.next();
+  } else {
+    await ctx.replyWithHTML(
+      `❗️ <b>Вы ввели неверный email</b>. Проверьте и введите снова`
+    );
+  }
 });
 
-const apiHandler = Telegraf.on('text', async ctx => {
-    try {
-        let isApiValid = false;
-        const date = new Date().toISOString();
-        const apiKey = ctx.message.text;
-        
-        await ctx.reply('Выполняется проверка API ключа ...');
-        await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
-            headers: {
-                authorization: apiKey,
-            } 
-        })
-        .then((response) => {
-            isApiValid = true;
-        })
-        .catch((e) => {
-            console.log(e)
-            isApiValid = false;
-        })
+const apiHandler = Telegraf.on("text", async (ctx) => {
+  try {
+    let isApiValid = false;
+    const date = new Date().toISOString();
+    const apiKey = ctx.message.text;
+    await axios
+      .get(`${ordersUrl}${date}&take=1&skip=0`, {
+        headers: {
+          authorization: apiKey,
+        },
+      })
+      .then((response) => {
+        isApiValid = true;
+      })
+      .catch((e) => {
+        console.log(e);
+        isApiValid = false;
+      });
 
-        if (isApiValid) {
-            ctx.session.email = ctx.scene.state.email;
-            ctx.session.apiKey = ctx.message.text;
+    if (isApiValid) {
+      ctx.session.email = ctx.scene.state.email;
+      ctx.session.apiKey = ctx.message.text;
 
-            await ctx.reply('УРА! Теперь вы сможете пользоваться всеми возможностями бота.', mainKeyboard);
+      await ctx.reply(
+        "Супер! Теперь вы сможете пользоваться всеми возможностями бота.",
+        mainKeyboard
+      );
 
-            return await ctx.scene.leave()
-        } else {
-            await ctx.replyWithHTML(`❗️ <b>Введеный вами API ключ невалиден.</b>
+      return await ctx.scene.leave();
+    } else {
+      await ctx.replyWithHTML(`❗️ <b>Введеный вами API ключ не принимается серверами wildberries.</b>
 Проверьте, пожалуйста, и введите снова.
 Если ошибка повторяется, попробуйте создать новый ключ для работы с ботом или свяжитесь с нами.`);
-        }
     }
-    catch(e) {
-        console.error(e)
-    }
+  } catch (e) {
+    console.error(e);
+  }
 });
 
 const startWizard = new WizardScene(
-    'start', 
-    askEmail, 
-    emailHandler,
-    apiHandler
+  "start",
+  askEmail,
+  emailHandler,
+  apiHandler
 );
 
 
