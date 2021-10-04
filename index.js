@@ -25,27 +25,6 @@ bot.start(async (ctx) => {
 	ctx.scene.enter('start');
 });
 bot.hears('📦 Сборочные задания', ctx => ctx.scene.enter('tasks'));
-// bot.context.db = {
-// 	orders: [],
-// 	ordersTotal: 0,
-// 	fbsDate: `2021-09-24T14:00:00.568Z`,
-// }
-
-// cron.schedule('*/5 * * * * *', async () => {
-// 	await getOrders();
-// });
-
-// bot.start(async (ctx) => {
-// 	if (config.admins.includes(ctx.from.id)) {
-// 		await ctx.reply('Бот активен...', Markup
-// 			.keyboard([
-// 				[allOrders, sale],
-// 				[allSalesToday]
-// 			])
-// 			.resize()
-// 		);
-// 	}
-// })
 
 bot.hears(sale, (ctx) => {
 	ctx.db.orders = [],
@@ -58,7 +37,6 @@ bot.hears(allOrders, (ctx) => {
 })
 
 // const reset
-
 const getOrders = async (ctx) => {
 	try {
 		let orders = [];
@@ -86,11 +64,10 @@ const getOrders = async (ctx) => {
 				...stocks.find(item => item.barcode === order.barcode)
 			}
 		});
-		//await newOrderReplyWithPhoto(newOrder);
-		return newOrderReplyHtml(newOrder)
+		return newOrderReplyHtml(newOrder);
 	}
 	catch (error){
-		console.error(error)
+		console.error(error);
 	}
 }
 
