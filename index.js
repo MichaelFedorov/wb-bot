@@ -20,8 +20,10 @@ const stage = new Stage([
 bot.use(session());
 bot.use(stage.middleware());
 
-bot.start(async (ctx) => ctx.scene.enter('start'));
-stage.command('start', ctx => ctx.scene.leave())
+bot.start(async (ctx) => {
+	ctx.scene.leave();
+	ctx.scene.enter('start');
+});
 bot.hears('📦 Сборочные задания', ctx => ctx.scene.enter('tasks'));
 // bot.context.db = {
 // 	orders: [],
