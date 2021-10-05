@@ -42,17 +42,13 @@ bot.hears('📦 Сборочные задания', ctx => ctx.scene.enter('task
 bot.hears('testFaunaDb',  async ctx => {
   try {
     const users = await client.query(
-      // q.Paginate(q.Collections()),
-      // { queryTimeout: 100 }
-      // Paginate(Documents(Collection('Users')), { size: 3 })
-      // Paginate(Match(Index("all_letters")))
       q.Map(
-        q.Paginate(Documents(Collection('Users'))),
-        q.Lambda(x => q.Get(x))
+        q.Paginate(q.Documents(q.Collection("Users"))),
+        q.Lambda("X", q.Get(q.Var("X")))
       )
     )
-    console.log('FAUNADB_get response', users?.data[0]?.data)
-    return ctx.replyWithHTML('users')
+
+    return ctx.replyWithHTML('users', users?.data[0]?.data)
   } catch (e) {
     return console.error('error', e)
   }
