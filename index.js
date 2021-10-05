@@ -21,7 +21,6 @@ bot.use(session());
 bot.use(stage.middleware());
 
 bot.start(async (ctx) => {
-	ctx.scene.leave();
 	ctx.scene.enter('start');
 });
 bot.hears('📦 Сборочные задания', ctx => ctx.scene.enter('tasks'));
