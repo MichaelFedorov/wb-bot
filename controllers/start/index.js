@@ -10,7 +10,7 @@ const { ordersUrl } = require('../../config');
 const { mainKeyboard } = require('../../util/keyboards');
 
 const askEmail = async (ctx) => {
-    await ctx.reply('Введите ваш email');
+    await ctx.reply('Введите ваш email', { reply_markup: { remove_keyboard: true } });
     return ctx.wizard.next();
 }
 
