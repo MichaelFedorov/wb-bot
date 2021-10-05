@@ -2,7 +2,7 @@ const {
   Telegraf,
   Scenes: { WizardScene },
 } = require("telegraf");
-const { validateEmail } = require("./helpers");
+const { validateEmail, validateApiByUserId } = require("./helpers");
 const axios = require("axios");
 
 const { ordersUrl } = require("../../config");
@@ -19,8 +19,9 @@ const emailHandler = Telegraf.on('text', async ctx => {
 
         ctx.scene.state.email = ctx.message.text;
 
-        await ctx.replyWithHTML(`Отлично! Далее введите <b>API ключ</b> от новой версии API.
-Если вы его еще не создавали, зайдите в личный кабинет WB и выполните необходимые действия.`);
+        await ctx.replyWithHTML(
+          `Отлично! Далее введите <b>API ключ</b> от новой версии API. Если вы его еще не создавали, зайдите в личный кабинет WB и выполните необходимые действия.`
+        );
 
         return ctx.wizard.next();
     } else {
@@ -29,44 +30,54 @@ const emailHandler = Telegraf.on('text', async ctx => {
 });
 
 const apiHandler = Telegraf.on('text', async ctx => {
-    try {
-        let isApiValid = false;
-        const date = new Date().toISOString();
-        const apiKey = ctx.message.text;
+  const apiKey = ctx.message.text;
+  const isApiKeyAssigned = await validateApiByUserId(ctx.user.id, apiKey)
+  try {
+    let isApiValid = false;
+    const date = new Date().toISOString();
 
-        await ctx.reply('Выполняется проверка API ключа ...');
-        await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
-            headers: {
-                authorization: apiKey,
-            }
-        })
+    await ctx.reply('Выполняется проверка API ключа ...');
+    if(!isApiKeyAssigned) {
+      await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
+        headers: {
+          authorization: apiKey,
+        }
+      })
         .then((response) => {
-            isApiValid = true;
+          isApiValid = true;
         })
         .catch((e) => {
-            console.log(e)
-            isApiValid = false;
+          console.log(e)
+          isApiValid = false;
         })
+    }
 
-        if (isApiValid) {
-            ctx.session.email = ctx.scene.state.email;
-            ctx.session.apiKey = ctx.message.text;
-
+    if (!isApiKeyAssigned) {
       await ctx.reply(
-        "Супер! Теперь вы сможете пользоваться всеми возможностями бота.",
+        "Ваш API ключ уже используется другим аккаунтом",
         mainKeyboard
       );
 
       return await ctx.scene.leave();
-    } else {
-      await ctx.replyWithHTML(`❗️ <b>Введеный вами API ключ не принимается серверами wildberries.</b>
+    } else if (isApiValid) {
+        ctx.session.email = ctx.scene.state.email;
+        ctx.session.apiKey = ctx.message.text;
+
+    await ctx.reply(
+      "Супер! Теперь вы сможете пользоваться всеми возможностями бота.",
+      mainKeyboard
+    );
+
+    return await ctx.scene.leave();
+  } else {
+    await ctx.replyWithHTML(`❗️ <b>Введеный вами API ключ не принимается серверами wildberries.</b>
 Проверьте, пожалуйста, и введите снова.
 Если ошибка повторяется, попробуйте создать новый ключ для работы с ботом или свяжитесь с нами.`);
-        }
-    }
-    catch(e) {
-        console.error(e)
-    }
+      }
+  }
+  catch(e) {
+      console.error(e)
+  }
 });
 
 const startWizard = new WizardScene(
