@@ -3,6 +3,20 @@ const { Telegraf, session, Scenes: { Stage }, Markup } = require('telegraf');
 const startWizard = require('./controllers/start');
 const tasksScene = require('./controllers/tasks');
 
+/* fauna DB features */
+
+const faunadb = require("faunadb");
+let client = new faunadb.Client({
+  secret: 'fnAEUy-13IAAx4CcXH_IqaZ_9rgx9pz0FdbXgLzV',
+  domain: 'db.eu.fauna.com',
+  scheme: 'https',
+});
+const q = faunadb.query;
+const { Collection, Documents, Paginate } = q;
+
+
+/* end FaunaDB features */
+
 const { sale, allOrders, allSalesToday } = require('./util/constants')
 const axios = require('axios');
 // const cron = require('node-cron');
@@ -25,6 +39,25 @@ bot.start(async (ctx) => {
 });
 bot.hears('📦 Сборочные задания', ctx => ctx.scene.enter('tasks'));
 
+bot.hears('testFaunaDb',  async ctx => {
+  try {
+    const users = await client.query(
+      // q.Paginate(q.Collections()),
+      // { queryTimeout: 100 }
+      // Paginate(Documents(Collection('Users')), { size: 3 })
+      // Paginate(Match(Index("all_letters")))
+      q.Map(
+        q.Paginate(Documents(Collection('Users'))),
+        q.Lambda(x => q.Get(x))
+      )
+    )
+    console.log('FAUNADB_get response', users?.data[0]?.data)
+    return ctx.replyWithHTML('users')
+  } catch (e) {
+    return console.error('error', e)
+  }
+})
+
 bot.hears(sale, (ctx) => {
 	ctx.db.orders = [],
 	ctx.db.ordersTotal = 0;
@@ -43,7 +76,7 @@ const getOrders = async (ctx) => {
 		await axios.get(`${config.ordersUrl}${db.fbsDate}&take=1000&skip=0`, {
 			headers: {
 				authorization: config.authorizationKey,
-			} 
+			}
 		})
 		.then((response) => {
 			orders = response.data.orders;
@@ -74,7 +107,7 @@ const getStocks = async () =>  {
 	await axios.get(`${config.stocksUrl}`, {
 		headers: {
 			authorization: config.authorizationKey,
-		} 
+		}
 	})
 	.then((response) => {
 		stocks = response.data.stocks
@@ -95,7 +128,7 @@ const newOrderReplyHtml = (order) => {
 
 <b>${order.subject}</b>
 ------
-<i>артикул:</i> ${order.article} 
+<i>артикул:</i> ${order.article}
 <i>pазмер:</i> ${order.size}
 <i>цена:</i> ${order.totalPrice/100} ₽
 	`;
@@ -120,7 +153,7 @@ bot.action('showAllOrders', async (ctx) => {
 // 	console.log(ctx.db.orders[ctx.db.orders.length-1].orderId);
 // 	await axios({
 // 		method: 'put',
-// 		url: config.updateOrderStatusUrl, 
+// 		url: config.updateOrderStatusUrl,
 // 		data: [{
 // 			orderId: ctx.db.orders[ctx.db.orders.length-1].orderId,
 // 			status: 1
