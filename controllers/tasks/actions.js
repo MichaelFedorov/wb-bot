@@ -19,7 +19,7 @@ const getStocks = async (ctx) =>  {
 
 const getTasks = async (ctx, status) => {
     // TODO date = - 4 days from now
-    const date = '2021-10-01T00:00:00.522Z';
+    const date = '2021-09-20T00:00:00.522Z';
     await getStocks(ctx);
 
     await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
@@ -52,19 +52,22 @@ const getTasks = async (ctx, status) => {
 const getTasksMsg = async (ctx, all) => {
     let msg = '';
     const tasks = ctx.session.tasks.slice(ctx.session.firstTask, ctx.session.lastTask);
-	tasks?.forEach((task, index) => {
-		msg = `${msg}
+    if (tasks.length > 0) {
+        tasks?.forEach((task, index) => {
+            msg = `${msg}
 --------------
 📦 0${ctx.session.firstTask + index + 1} | <b>${task.subject}</b> | ${task.article} | ${task.size.split('/')[0]} | ${task.totalPrice/100} ₽
 шк ${task.barcode} | стикер ${task.sticker.wbStickerId}
 <b>В наличии:</b> ${task.stock} шт.
-`});
+    `});
 
-	msg += 
-    `
+        msg += 
+        `
 
 Показано c <b>${ctx.session.firstTask + 1}</b> по <b>${ctx.session.lastTask}</b> из <b>${ctx.session.tasks.length}</b> заданий. `;
-
+    } else {
+        msg = 'У вас пока нет заданий'
+    } 
     return msg;
 }
 
