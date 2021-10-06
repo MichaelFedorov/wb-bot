@@ -25,8 +25,10 @@ const askEmail = async (ctx) => {
       console.log(e)
       return false
     });
-  if(isUserInDB) {
+  const isApiValid = await isApiKeyValid(isUserInDB.wbApiKey)
+  if(isUserInDB && isApiValid) {
     await ctx.reply(
+      `Привет ${isUserInDB.name}!`,
       mainKeyboard
     );
   } else {
