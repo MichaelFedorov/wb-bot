@@ -3,7 +3,7 @@ const { Telegraf, Scenes : { Stage, BaseScene } } = require('telegraf');
 
 const { ordersUrl } = require('../../config');
 
-const { mainKeyboard, tasksKeyboard } = require('../../util/keyboards');
+const { mainKeyboard, tasksKeyboard } = require('../../utils/keyboards');
 const {
     showTasks,
     next15TasksInlineKeyboard,
@@ -73,7 +73,7 @@ tasks.action('next15', async ctx =>{
     await ctx.answerCbQuery();
     ctx.session.firstTask = ctx.session.lastTask;
     ctx.session.taskPage += 1;
-    
+
     if (ctx.session.taskPage !== Math.floor(ctx.session.tasks.length / 15)) {
         ctx.session.lastTask = ctx.session.firstTask + 15;
         const msg = await getTasksMsg(ctx, true);
@@ -84,7 +84,7 @@ tasks.action('next15', async ctx =>{
     } else {
         ctx.session.lastTask = ctx.session.tasks.length;
         const msg = await getTasksMsg(ctx, true);
-        return await ctx.editMessageText(msg, { 
+        return await ctx.editMessageText(msg, {
             parse_mode: 'HTML',
             ...prev15TasksInlineKeyboard
         });

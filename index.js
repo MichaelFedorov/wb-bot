@@ -4,21 +4,7 @@ const startWizard = require('./controllers/start');
 const tasksScene = require('./controllers/tasks');
 const settingsScene = require('./controllers/settings');
 
-/* fauna DB features */
-
-const faunadb = require("faunadb");
-let client = new faunadb.Client({
-  secret: 'fnAEUy-13IAAx4CcXH_IqaZ_9rgx9pz0FdbXgLzV',
-  domain: 'db.eu.fauna.com',
-  scheme: 'https',
-});
-const q = faunadb.query;
-const { Collection, Documents, Paginate } = q;
-
-
-/* end FaunaDB features */
-
-const { sale, allOrders, allSalesToday } = require('./util/constants')
+const { sale, allOrders } = require('./utils/constants')
 const axios = require('axios');
 // const cron = require('node-cron');
 
@@ -41,20 +27,6 @@ bot.start(async (ctx) => {
 });
 bot.hears('📦 Сборочные задания', ctx => ctx.scene.enter('tasks'));
 bot.hears('⚙️ Настройки', ctx => ctx.scene.enter('settings'));
-bot.hears('testFaunaDb',  async ctx => {
-  try {
-    const users = await client.query(
-      q.Map(
-        q.Paginate(q.Documents(q.Collection("Users"))),
-        q.Lambda("X", q.Get(q.Var("X")))
-      )
-    )
-
-    return ctx.replyWithHTML('users', users?.data[0]?.data)
-  } catch (e) {
-    return console.error('error', e)
-  }
-})
 
 bot.hears(sale, (ctx) => {
 	ctx.db.orders = [],
