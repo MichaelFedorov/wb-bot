@@ -31,6 +31,7 @@ const askEmail = async (ctx) => {
       `Привет ${isUserInDB.name}!`,
       mainKeyboard
     );
+    return await ctx.scene.leave();
   } else {
     await ctx.reply('Введите ваш email', {reply_markup: {remove_keyboard: true}})
     return ctx.wizard.next();
