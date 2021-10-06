@@ -1,32 +1,52 @@
 const {
   Telegraf,
-  Scenes: { WizardScene },
+  Scenes: {WizardScene},
 } = require("telegraf");
-const { validateEmail, validateApiByUserId } = require("./helpers");
+const {
+  validateEmail,
+  validateApiByUserId
+} = require("./helpers");
 const axios = require("axios");
 
-const { ordersUrl } = require("../../config");
+const {ordersUrl} = require("../../config");
 
-const { mainKeyboard } = require("../../util/keyboards");
+const {mainKeyboard} = require("../../utils/keyboards");
+const {createUser,
+  isUserAlreadyCreated
+} = require("../../utils/db");
 
 const askEmail = async (ctx) => {
-    await ctx.reply('Введите ваш email', { reply_markup: { remove_keyboard: true } });
+  const isUserInDB = await isUserAlreadyCreated(ctx.from.id)
+    .then(r => {
+      return r
+    })
+    .catch(e => {
+      console.log(e)
+      return false
+    });
+  if(isUserInDB) {
+    await ctx.reply(
+      mainKeyboard
+    );
+  } else {
+    await ctx.reply('Введите ваш email', {reply_markup: {remove_keyboard: true}})
     return ctx.wizard.next();
+  }
 }
 
 const emailHandler = Telegraf.on('text', async ctx => {
-    if (validateEmail(ctx.message.text)) {
+  if (validateEmail(ctx.message.text)) {
 
-        ctx.scene.state.email = ctx.message.text;
+    ctx.scene.state.email = ctx.message.text;
 
-        await ctx.replyWithHTML(
-          `Отлично! Далее введите <b>API ключ</b> от новой версии API. Если вы его еще не создавали, зайдите в личный кабинет WB и выполните необходимые действия.`
-        );
+    await ctx.replyWithHTML(
+      `Отлично! Далее введите <b>API ключ</b> от новой версии API. Если вы его еще не создавали, зайдите в личный кабинет WB и выполните необходимые действия.`
+    );
 
-        return ctx.wizard.next();
-    } else {
-        await ctx.replyWithHTML(`❗️ <b>Вы ввели неверный email</b>. Проверьте и введите снова`);
-    }
+    return ctx.wizard.next();
+  } else {
+    await ctx.replyWithHTML(`❗️ <b>Вы ввели неверный email</b>. Проверьте и введите снова`);
+  }
 });
 
 const apiHandler = Telegraf.on('text', async ctx => {
@@ -37,7 +57,7 @@ const apiHandler = Telegraf.on('text', async ctx => {
     const date = new Date().toISOString();
 
     await ctx.reply('Выполняется проверка API ключа ...');
-    if(!isApiKeyAssigned) {
+    if (!isApiKeyAssigned) {
       await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
         headers: {
           authorization: apiKey,
@@ -60,31 +80,38 @@ const apiHandler = Telegraf.on('text', async ctx => {
 
       return await ctx.scene.leave();
     } else if (isApiValid) {
-        ctx.session.email = ctx.scene.state.email;
-        ctx.session.apiKey = ctx.message.text;
+      ctx.session.email = ctx.scene.state.email;
+      ctx.session.apiKey = ctx.message.text;
+      const newUser = await createUser({
+        userId: ctx?.from?.id,
+        username: ctx?.from?.username,
+        email: ctx?.scene?.state?.email,
+        wbApiKey: apiKey,
+        name: `${ctx?.from?.first_name} ${ctx?.from?.last_name}`
+      })
+      console.log('new user added', newUser?.data)
 
-    await ctx.reply(
-      "Супер! Теперь вы сможете пользоваться всеми возможностями бота.",
-      mainKeyboard
-    );
+      await ctx.reply(
+        "Супер! Теперь вы сможете пользоваться всеми возможностями бота.",
+        mainKeyboard
+      );
 
-    return await ctx.scene.leave();
-  } else {
-    await ctx.replyWithHTML(`❗️ <b>Введеный вами API ключ не принимается серверами wildberries.</b>
+      return await ctx.scene.leave();
+    } else {
+      await ctx.replyWithHTML(`❗️ <b>Введеный вами API ключ не принимается серверами wildberries.</b>
 Проверьте, пожалуйста, и введите снова.
 Если ошибка повторяется, попробуйте создать новый ключ для работы с ботом или свяжитесь с нами.`);
-      }
-  }
-  catch(e) {
-      console.error(e)
+    }
+  } catch (e) {
+    console.error(e)
   }
 });
 
 const startWizard = new WizardScene(
-    'start',
-    askEmail,
-    emailHandler,
-    apiHandler
+  'start',
+  askEmail,
+  emailHandler,
+  apiHandler
 );
 
 

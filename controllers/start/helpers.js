@@ -43,22 +43,6 @@ const matchUserIdWithAoiKey = async (id, key) => {
     }
 };
 
-const createUser = async user => {
-  try {
-    const userData = await client.query(
-      Create(
-        Collection('Users'),
-        {
-          data: { ...user },
-        },
-      )
-    );
-    return userData;
-  } catch (e) {
-    console.error(e)
-  }
-};
-
 const validateApiByUserId = async (userId, apiKey) => {
   try {
     const keyUsedBy = client.query(
@@ -73,7 +57,6 @@ const validateApiByUserId = async (userId, apiKey) => {
 };
 
 module.exports = {
-  createUser,
   findUserByEmail,
   findUserById,
   matchUserIdWithAoiKey,
