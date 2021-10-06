@@ -37,6 +37,8 @@ const askEmail = async (ctx) => {
     await ctx.reply('Введите ваш email', {reply_markup: {remove_keyboard: true}})
     return ctx.wizard.next();
   }
+    //await ctx.reply('Главное меню', mainKeyboard);
+    //return await ctx.scene.leave()
 }
 
 const emailHandler = Telegraf.on('text', async ctx => {

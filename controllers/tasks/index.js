@@ -67,7 +67,7 @@ tasks.hears('🚚 Собранные', async ctx => {
     showTasks(ctx);
 })
 
-tasks.hears('⬅️ Назад', ctx => ctx.scene.leave())
+tasks.hears('⬅️ Вернуться', ctx => ctx.scene.leave())
 
 tasks.action('next15', async ctx =>{
     await ctx.answerCbQuery();
