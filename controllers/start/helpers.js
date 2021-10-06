@@ -1,4 +1,6 @@
 const faunadb = require("faunadb");
+const axios = require("axios");
+const {ordersUrl} = require("../../config");
 
 const { Select, Get, Match, Identify, Index, Create, Collection, Paginate } = faunadb.query;
 
@@ -56,9 +58,28 @@ const validateApiByUserId = async (userId, apiKey) => {
   }
 };
 
+const isApiKeyValid = async apiKey => {
+
+  const isApiValid = await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
+    headers: {
+      authorization: apiKey,
+    }
+  })
+    .then((response) => {
+      return true;
+    })
+    .catch((e) => {
+      console.log(e)
+      return false;
+    });
+
+  return isApiValid;
+};
+
 module.exports = {
   findUserByEmail,
   findUserById,
+  isApiKeyValid,
   matchUserIdWithAoiKey,
   validateEmail,
   validateApiByUserId

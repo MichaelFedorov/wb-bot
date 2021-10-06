@@ -4,7 +4,8 @@ const {
 } = require("telegraf");
 const {
   validateEmail,
-  validateApiByUserId
+  validateApiByUserId,
+  isApiKeyValid
 } = require("./helpers");
 const axios = require("axios");
 
@@ -51,35 +52,21 @@ const emailHandler = Telegraf.on('text', async ctx => {
 
 const apiHandler = Telegraf.on('text', async ctx => {
   const apiKey = ctx.message.text;
-  const isApiKeyAssigned = await validateApiByUserId(ctx.user.id, apiKey)
   try {
-    let isApiValid = false;
+    let isApiValid = await isApiKeyValid(ctx.user.id)
     const date = new Date().toISOString();
 
     await ctx.reply('Выполняется проверка API ключа ...');
-    if (!isApiKeyAssigned) {
-      await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
-        headers: {
-          authorization: apiKey,
-        }
-      })
-        .then((response) => {
-          isApiValid = true;
-        })
-        .catch((e) => {
-          console.log(e)
-          isApiValid = false;
-        })
-    }
 
-    if (!isApiKeyAssigned) {
-      await ctx.reply(
-        "Ваш API ключ уже используется другим аккаунтом",
-        mainKeyboard
-      );
+    // if(!isApiValid) {
+    //   await ctx.reply(
+    //     "Ваш API ключ уже используется другим аккаунтом",
+    //     mainKeyboard
+    //   );
+    //   return await ctx.scene.leave();
+    // }
 
-      return await ctx.scene.leave();
-    } else if (isApiValid) {
+    if (isApiValid) {
       ctx.session.email = ctx.scene.state.email;
       ctx.session.apiKey = ctx.message.text;
       const newUser = await createUser({

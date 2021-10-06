@@ -41,7 +41,7 @@ const isUserAlreadyCreated = async id => {
         )
       )
     );
-    return userData?.data?.userId === id ? userData?.data : null;
+    return userData?.data?.id === id ? userData?.data : null;
   } catch (e) {
     console.error(e)
   }
