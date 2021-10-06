@@ -26,11 +26,19 @@ const mainKeyboard = Markup.keyboard([
 const tasksKeyboard = Markup.keyboard([
   ["✳️ Новые"],
   ["⚒ На сборке", "🚚 Собранные"],
-  ["⬅️ Назад"]
+  ["⬅️ Вернуться"]
+])
+.resize();
+
+const settingsKeyboard = Markup.keyboard([
+  ["🔑 Заменить API Ключ"],
+  //["🚹 Добавить пользователя"],
+  ["⬅️ Вернуться"]
 ])
 .resize();
 
 module.exports = {
   mainKeyboard,
-  tasksKeyboard
+  tasksKeyboard,
+  settingsKeyboard
 }

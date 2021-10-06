@@ -2,6 +2,7 @@ require('dotenv').config()
 const { Telegraf, session, Scenes: { Stage }, Markup } = require('telegraf');
 const startWizard = require('./controllers/start');
 const tasksScene = require('./controllers/tasks');
+const settingsScene = require('./controllers/settings');
 
 /* fauna DB features */
 
@@ -28,7 +29,8 @@ const bot = new Telegraf(process?.env?.BOT_TOKEN);
 
 const stage = new Stage([
 	startWizard,
-	tasksScene
+	tasksScene,
+	settingsScene
 ]);
 
 bot.use(session());
@@ -38,7 +40,7 @@ bot.start(async (ctx) => {
 	ctx.scene.enter('start');
 });
 bot.hears('📦 Сборочные задания', ctx => ctx.scene.enter('tasks'));
-
+bot.hears('⚙️ Настройки', ctx => ctx.scene.enter('settings'));
 bot.hears('testFaunaDb',  async ctx => {
   try {
     const users = await client.query(
