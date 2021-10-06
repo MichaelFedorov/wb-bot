@@ -1,19 +1,15 @@
-const { Telegraf, Scenes : { Stage, WizardScene } } = require('telegraf');
+const { Telegraf, Scenes : { Stage, WizardScene }, Composer } = require('telegraf');
 const { validateEmail } = require('./helpers');
 const axios = require('axios');
 
 const { ordersUrl } = require('../../config');
-
-// import { languageChangeAction } from './actions';
-// import { getLanguageKeyboard } from './helpers';
-// import User from '../../models/User';
 const { mainKeyboard } = require('../../util/keyboards');
 
 const askEmail = async (ctx) => {
-    //await ctx.reply('Введите ваш email', { reply_markup: { remove_keyboard: true } });
-    //return ctx.wizard.next();
-    await ctx.reply('Главное меню', mainKeyboard);
-    return await ctx.scene.leave()
+    await ctx.reply('Введите ваш email', { reply_markup: { remove_keyboard: true } });
+    return ctx.wizard.next();
+    //await ctx.reply('Главное меню', mainKeyboard);
+    //return await ctx.scene.leave()
 }
 
 const emailHandler = Telegraf.on('text', async ctx => {
@@ -69,8 +65,8 @@ const apiHandler = Telegraf.on('text', async ctx => {
 });
 
 const startWizard = new WizardScene(
-    'start', 
-    askEmail, 
+    'start',
+    askEmail,
     emailHandler,
     apiHandler
 );
