@@ -4,7 +4,11 @@ const {ordersUrl} = require("../../config");
 
 const { Select, Get, Match, Identify, Index, Create, Collection, Paginate } = faunadb.query;
 
-let client = new faunadb.Client({ secret: process.env.FDB_FQL_SERVER_KEY });
+let client = new faunadb.Client({
+  secret: process.env.FDB_FQL_SERVER_KEY,
+  domain: 'db.eu.fauna.com',
+  scheme: 'https'
+});
 
 const regExp = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
