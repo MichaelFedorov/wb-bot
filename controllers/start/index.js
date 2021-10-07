@@ -60,7 +60,7 @@ const emailHandler = Telegraf.on('text', async ctx => {
 const apiHandler = Telegraf.on('text', async ctx => {
   const apiKey = ctx.message.text;
   try {
-    let isApiValid = await isApiKeyValid(ctx.user.id)
+    let isApiValid = await isApiKeyValid(apiKey);
     await ctx.reply('Выполняется проверка API ключа ...');
 
     // if(!isApiValid) {
@@ -82,7 +82,7 @@ const apiHandler = Telegraf.on('text', async ctx => {
         name: `${ctx?.from?.first_name} ${ctx?.from?.last_name}`
       }
       ctx.session.user = await createUser({...user}).then(r => r?.data)
-      console.log('new user added', newUser?.data)
+      console.log('new user added', ctx.session.user?.data)
 
       await ctx.reply(
         "Супер! Теперь вы сможете пользоваться всеми возможностями бота.",
