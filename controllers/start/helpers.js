@@ -59,7 +59,7 @@ const validateApiByUserId = async (userId, apiKey) => {
 };
 
 const isApiKeyValid = async apiKey => {
-
+  const date = new Date().toISOString();
   const isApiValid = await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
     headers: {
       authorization: apiKey,
