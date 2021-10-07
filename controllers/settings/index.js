@@ -3,7 +3,7 @@ const axios = require('axios');
 
 const { ordersUrl } = require('../../config');
 
-const { mainKeyboard, settingsKeyboard } = require('../../util/keyboards');
+const { mainKeyboard, settingsKeyboard } = require('../../utils/keyboards');
 const {
     confirmationInlineKeyboard,
 } = require('./helpers');
@@ -35,12 +35,12 @@ settings.on('text', async ctx => {
         let isApiValid = false;
             const date = new Date().toISOString();
             const apiKey = ctx.message.text;
-            
+
             await ctx.reply('Выполняется проверка API ключа ...');
             await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
                 headers: {
                     authorization: apiKey,
-                } 
+                }
             })
             .then((response) => {
                 isApiValid = true;
