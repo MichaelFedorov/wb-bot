@@ -17,7 +17,7 @@ const {createUser,
 } = require("../../utils/db");
 
 const askEmail = async (ctx) => {
-  const isUserInDB = await isUserAlreadyCreated(ctx.from.id)
+  const user = await isUserAlreadyCreated(ctx.from.id)
     .then(r => {
       return r
     })
@@ -25,15 +25,18 @@ const askEmail = async (ctx) => {
       console.log(e)
       return false
     });
-  const isApiValid = await isApiKeyValid(isUserInDB?.wbApiKey)
-  if(isUserInDB && isApiValid) {
-    ctx.session.user = isUserInDB
-    await ctx.reply(
-      `Привет ${isUserInDB.name}!`,
-      mainKeyboard
-    );
-    ctx.session = { ...ctx.session, ...isUserInDB }
-    return await ctx.scene.leave();
+
+  if (user) {
+    const isApiValid = await isApiKeyValid(isUserInDB?.wbApiKey);
+    if(isApiValid) {
+      ctx.session.user = isUserInDB
+      await ctx.reply(
+        `Привет ${isUserInDB.name}!`,
+        mainKeyboard
+      );
+      ctx.session = { ...ctx.session, ...isUserInDB }
+      return await ctx.scene.leave();
+    } 
   } else {
     await ctx.reply('Введите ваш email', {reply_markup: {remove_keyboard: true}})
     return ctx.wizard.next();
