@@ -3,7 +3,7 @@ const { Telegraf, Scenes : { Stage, BaseScene } } = require('telegraf');
 
 const { ordersUrl } = require('../../config');
 
-const { mainKeyboard, tasksKeyboard } = require('../../util/keyboards');
+const { mainKeyboard, tasksKeyboard } = require('../../utils/keyboards');
 const {
     showTasks,
     next15TasksInlineKeyboard,

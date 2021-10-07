@@ -3,7 +3,7 @@ const axios = require('axios');
 
 const { ordersUrl } = require('../../config');
 
-const { mainKeyboard, settingsKeyboard } = require('../../util/keyboards');
+const { mainKeyboard, settingsKeyboard } = require('../../utils/keyboards');
 const {
     confirmationInlineKeyboard,
 } = require('./helpers');
