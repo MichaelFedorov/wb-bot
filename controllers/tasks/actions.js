@@ -51,8 +51,8 @@ const getTasks = async (ctx, status) => {
 
 const getTasksMsg = async (ctx, all) => {
     let msg = '';
-    const tasks = ctx.session.tasks.slice(ctx.session.firstTask, ctx.session.lastTask);
-    if (tasks.length > 0) {
+    const tasks = ctx.session?.tasks?.slice(ctx.session?.firstTask, ctx.session?.lastTask);
+    if (tasks?.length > 0) {
         tasks?.forEach((task, index) => {
             msg = `${msg}
 --------------
@@ -61,13 +61,13 @@ const getTasksMsg = async (ctx, all) => {
 <b>В наличии:</b> ${task.stock} шт.
     `});
 
-        msg += 
+        msg +=
         `
 
 Показано c <b>${ctx.session.firstTask + 1}</b> по <b>${ctx.session.lastTask}</b> из <b>${ctx.session.tasks.length}</b> заданий. `;
     } else {
         msg = 'У вас пока нет заданий'
-    } 
+    }
     return msg;
 }
 

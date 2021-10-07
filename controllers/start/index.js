@@ -25,8 +25,9 @@ const askEmail = async (ctx) => {
       console.log(e)
       return false
     });
-  const isApiValid = await isApiKeyValid(isUserInDB.wbApiKey)
+  const isApiValid = await isApiKeyValid(isUserInDB?.wbApiKey)
   if(isUserInDB && isApiValid) {
+    ctx.session.user = isUserInDB
     await ctx.reply(
       `Привет ${isUserInDB.name}!`,
       mainKeyboard
@@ -60,8 +61,6 @@ const apiHandler = Telegraf.on('text', async ctx => {
   const apiKey = ctx.message.text;
   try {
     let isApiValid = await isApiKeyValid(ctx.user.id)
-    const date = new Date().toISOString();
-
     await ctx.reply('Выполняется проверка API ключа ...');
 
     // if(!isApiValid) {
@@ -75,13 +74,14 @@ const apiHandler = Telegraf.on('text', async ctx => {
     if (isApiValid) {
       ctx.session.email = ctx.scene.state.email;
       ctx.session.apiKey = ctx.message.text;
-      const newUser = await createUser({
+      const user = {
         userId: ctx?.from?.id,
         username: ctx?.from?.username,
         email: ctx?.scene?.state?.email,
         wbApiKey: apiKey,
         name: `${ctx?.from?.first_name} ${ctx?.from?.last_name}`
-      })
+      }
+      ctx.session.user = await createUser({...user}).then(r => r?.data)
       console.log('new user added', newUser?.data)
 
       await ctx.reply(
