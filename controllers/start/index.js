@@ -61,9 +61,9 @@ const emailHandler = Telegraf.on('text', async ctx => {
 });
 
 const apiHandler = Telegraf.on('text', async ctx => {
-  const apiKey = ctx.message.text;
+  const wbApiKey = ctx.message.text;
   try {
-    let isApiValid = await isApiKeyValid(apiKey);
+    let isApiValid = await isApiKeyValid(wbApiKey);
     await ctx.reply('Выполняется проверка API ключа ...');
 
     // if(!isApiValid) {
@@ -81,7 +81,7 @@ const apiHandler = Telegraf.on('text', async ctx => {
         userId: ctx?.from?.id,
         username: ctx?.from?.username,
         email: ctx?.scene?.state?.email,
-        wbApiKey: apiKey,
+        wbApiKey,
         name: `${ctx?.from?.first_name} ${ctx?.from?.last_name}`
       }
       ctx.session.user = await createUser({...user}).then(r => r?.data)

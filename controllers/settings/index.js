@@ -7,6 +7,7 @@ const { mainKeyboard, settingsKeyboard } = require('../../utils/keyboards');
 const {
     confirmationInlineKeyboard,
 } = require('./helpers');
+const {returnToMainScreen} = require("../../utils/common");
 const {  } = require('./actions');
 
 const settings = new BaseScene('settings');
@@ -82,7 +83,7 @@ settings.action('cancel', async ctx =>{
 })
 
 settings.leave(async ctx => {
-  await ctx.reply('Чем могу помочь?', mainKeyboard);
+  await returnToMainScreen(ctx);
 });
 
 //addKey.enter
