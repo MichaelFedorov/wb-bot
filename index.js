@@ -7,12 +7,10 @@ const salesScene = require('./controllers/sales');
 
 const { sale, allOrders } = require('./utils/constants')
 const axios = require('axios');
-// const cron = require('node-cron');
 
 const config = require('./config');
 const data = require('./data');
-
-const bot = new Telegraf(process?.env?.BOT_TOKEN);
+const { bot } = require('./utils/init')
 
 const stage = new Stage([
 	startWizard,

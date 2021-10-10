@@ -12,6 +12,7 @@
         "telegraf": "^4.4.1"
     },
     "devDependencies": {
+        "cron-job-manager": "^2.1.4",
         "eslint": "^7.32.0"
     }
 }

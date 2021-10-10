@@ -5,12 +5,11 @@ const {
 const {
   validateEmail,
   validateApiByUserId,
-  isApiKeyValid
+  isApiKeyValid,
+  getOrders
 } = require("./helpers");
-const axios = require("axios");
-
-const {ordersUrl} = require("../../config");
-
+const CronJobManager = require('cron-job-manager');
+const manager = new CronJobManager()
 const {mainKeyboard} = require("../../utils/keyboards");
 const {createUser,
   isUserAlreadyCreated
@@ -30,6 +29,20 @@ const askEmail = async (ctx) => {
     const isApiValid = await isApiKeyValid(user?.wbApiKey);
     if(isApiValid) {
       ctx.session.user = user
+// const cron = require('node-cron');
+      manager.add(
+        `notification_new_orders_${user?.id}`,
+        '*/5 * * * * *', // the crontab schedule
+        async () => {
+          await getOrders(ctx);
+        },
+        {
+// extra options..
+// see https://www.npmjs.com/package/cron for all available
+          start:true,
+          timeZone:"America/Los_Angeles",
+        }
+      );
       await ctx.reply(
         `Привет ${user.name}!`,
         mainKeyboard
@@ -41,8 +54,6 @@ const askEmail = async (ctx) => {
     await ctx.reply('Введите ваш email', {reply_markup: {remove_keyboard: true}})
     return ctx.wizard.next();
   }
-    //await ctx.reply('Главное меню', mainKeyboard);
-    //return await ctx.scene.leave()
 }
 
 const emailHandler = Telegraf.on('text', async ctx => {
