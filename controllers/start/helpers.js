@@ -27,17 +27,6 @@ const findUserByEmail = async email => {
     }
 };
 
-const findUserById = async id => {
-    try {
-        const _res = await client.query(
-          Select(["ref"], Get(Match(Index("id"), id)))
-        );
-        return _res;
-    } catch (e) {
-        console.log(e.status);
-    }
-};
-
 const matchUserIdWithAoiKey = async (id, key) => {
     try {
         const _id = await client.query(
@@ -49,10 +38,10 @@ const matchUserIdWithAoiKey = async (id, key) => {
     }
 };
 
-const validateApiByUserId = async (userId, apiKey) => {
+const validateApiByUserId = async (userId, wbApiKey) => {
   try {
     const keyUsedBy = client.query(
-      Paginate(Match(Index('wbApiKey'), apiKey))
+      Paginate(Match(Index('wbApiKey'), wbApiKey))
     )
     console.log(keyUsedBy)
     return keyUsedBy?.data?.length > 0;
@@ -64,7 +53,7 @@ const validateApiByUserId = async (userId, apiKey) => {
 
 const isApiKeyValid = async apiKey => {
   const date = new Date().toISOString();
-  const isApiValid = await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
+  return await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
     headers: {
       authorization: apiKey,
     }
@@ -76,13 +65,10 @@ const isApiKeyValid = async apiKey => {
       console.log(e)
       return false;
     });
-
-  return isApiValid;
 };
 
 module.exports = {
   findUserByEmail,
-  findUserById,
   isApiKeyValid,
   matchUserIdWithAoiKey,
   validateEmail,
