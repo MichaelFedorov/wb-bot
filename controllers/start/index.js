@@ -27,16 +27,16 @@ const askEmail = async (ctx) => {
     });
 
   if (user) {
-    const isApiValid = await isApiKeyValid(isUserInDB?.wbApiKey);
+    const isApiValid = await isApiKeyValid(user?.wbApiKey);
     if(isApiValid) {
-      ctx.session.user = isUserInDB
+      ctx.session.user = user
       await ctx.reply(
-        `Привет ${isUserInDB.name}!`,
+        `Привет ${user.name}!`,
         mainKeyboard
       );
-      ctx.session = { ...ctx.session, ...isUserInDB }
+      ctx.session = { ...ctx.session, ...user }
       return await ctx.scene.leave();
-    } 
+    }
   } else {
     await ctx.reply('Введите ваш email', {reply_markup: {remove_keyboard: true}})
     return ctx.wizard.next();
