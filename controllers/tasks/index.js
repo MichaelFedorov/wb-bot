@@ -11,6 +11,7 @@ const {
     prevNext15TasksInlineKeyboard
 } = require('./helpers');
 const { getTasks, getTasksMsg } = require('./actions');
+const {returnToMainScreen} = require("../../utils/common");
 
 const { leave } = Stage;
 
@@ -119,7 +120,7 @@ tasks.action('closeAllTasks', async ctx =>{
 })
 
 tasks.leave(async ctx => {
-  await ctx.reply('Чем могу помочь?', mainKeyboard);
+  await returnToMainScreen(ctx);
 });
 
 module.exports = tasks;

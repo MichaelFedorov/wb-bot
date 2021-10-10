@@ -17,7 +17,7 @@ const {createUser,
 } = require("../../utils/db");
 
 const askEmail = async (ctx) => {
-  const isUserInDB = await isUserAlreadyCreated(ctx.from.id)
+  const user = await isUserAlreadyCreated(ctx.from.id)
     .then(r => {
       return r
     })
@@ -25,14 +25,18 @@ const askEmail = async (ctx) => {
       console.log(e)
       return false
     });
-  const isApiValid = await isApiKeyValid(isUserInDB.wbApiKey)
-  if(isUserInDB && isApiValid) {
-    await ctx.reply(
-      `Привет ${isUserInDB.name}!`,
-      mainKeyboard
-    );
-    ctx.session = { ...ctx.session, ...isUserInDB }
-    return await ctx.scene.leave();
+
+  if (user) {
+    const isApiValid = await isApiKeyValid(user?.wbApiKey);
+    if(isApiValid) {
+      ctx.session.user = user
+      await ctx.reply(
+        `Привет ${user.name}!`,
+        mainKeyboard
+      );
+      ctx.session = { ...ctx.session, ...user }
+      return await ctx.scene.leave();
+    }
   } else {
     await ctx.reply('Введите ваш email', {reply_markup: {remove_keyboard: true}})
     return ctx.wizard.next();
@@ -57,11 +61,9 @@ const emailHandler = Telegraf.on('text', async ctx => {
 });
 
 const apiHandler = Telegraf.on('text', async ctx => {
-  const apiKey = ctx.message.text;
+  const wbApiKey = ctx.message.text;
   try {
-    let isApiValid = await isApiKeyValid(ctx.user.id)
-    const date = new Date().toISOString();
-
+    let isApiValid = await isApiKeyValid(wbApiKey);
     await ctx.reply('Выполняется проверка API ключа ...');
 
     // if(!isApiValid) {
@@ -75,14 +77,15 @@ const apiHandler = Telegraf.on('text', async ctx => {
     if (isApiValid) {
       ctx.session.email = ctx.scene.state.email;
       ctx.session.apiKey = ctx.message.text;
-      const newUser = await createUser({
+      const user = {
         userId: ctx?.from?.id,
         username: ctx?.from?.username,
         email: ctx?.scene?.state?.email,
-        wbApiKey: apiKey,
+        wbApiKey,
         name: `${ctx?.from?.first_name} ${ctx?.from?.last_name}`
-      })
-      console.log('new user added', newUser?.data)
+      }
+      ctx.session.user = await createUser({...user}).then(r => r?.data)
+      console.log('new user added', ctx.session.user?.data)
 
       await ctx.reply(
         "Супер! Теперь вы сможете пользоваться всеми возможностями бота.",

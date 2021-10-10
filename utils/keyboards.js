@@ -37,8 +37,15 @@ const settingsKeyboard = Markup.keyboard([
 ])
 .resize();
 
+const salesKeyboard = Markup.keyboard([
+  ["Продажи за сегодня"],
+  ["⬅️ Вернуться"]
+])
+  .resize();
+
 module.exports = {
   mainKeyboard,
   tasksKeyboard,
-  settingsKeyboard
+  settingsKeyboard,
+  salesKeyboard
 }

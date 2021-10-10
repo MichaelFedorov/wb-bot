@@ -3,6 +3,7 @@ const { Telegraf, session, Scenes: { Stage }, Markup } = require('telegraf');
 const startWizard = require('./controllers/start');
 const tasksScene = require('./controllers/tasks');
 const settingsScene = require('./controllers/settings');
+const salesScene = require('./controllers/sales');
 
 const { sale, allOrders } = require('./utils/constants')
 const axios = require('axios');
@@ -16,7 +17,8 @@ const bot = new Telegraf(process?.env?.BOT_TOKEN);
 const stage = new Stage([
 	startWizard,
 	tasksScene,
-	settingsScene
+	settingsScene,
+  salesScene
 ]);
 
 bot.use(session());
@@ -27,6 +29,7 @@ bot.start(async (ctx) => {
 });
 bot.hears('📦 Сборочные задания', ctx => ctx.scene.enter('tasks'));
 bot.hears('⚙️ Настройки', ctx => ctx.scene.enter('settings'));
+bot.hears('💰 Продажи', ctx => ctx.scene.enter('sales'));
 
 bot.hears(sale, (ctx) => {
 	ctx.db.orders = [],
@@ -73,10 +76,10 @@ const getOrders = async (ctx) => {
 	}
 }
 
-const getStocks = async () =>  {
+const getStocks = async ctx =>  {
 	await axios.get(`${config.stocksUrl}`, {
 		headers: {
-			authorization: config.authorizationKey,
+			authorization: ctx.session.apiKey || config.authorizationKey,
 		}
 	})
 	.then((response) => {

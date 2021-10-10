@@ -10,6 +10,9 @@ const {
   Documents,
   Var,
   Lambda,
+  Select,
+  Match,
+  Index
 } = faunadb.query;
 let client = new faunadb.Client({
   secret: process.env.FDB_FQL_SERVER_KEY,
@@ -61,8 +64,19 @@ const getAllUsers = async () => {
   }
 }
 
+const findUserById = async id => {
+  try {
+    return await client.query(
+      Select(["ref"], Get(Match(Index("id"), id)))
+    );
+  } catch (e) {
+    console.log(e.status);
+  }
+};
+
 module.exports = {
   createUser,
+  findUserById,
   getAllUsers,
   isUserAlreadyCreated
 }
