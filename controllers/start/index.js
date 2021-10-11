@@ -93,7 +93,8 @@ const apiHandler = Telegraf.on('text', async ctx => {
         username: ctx?.from?.username,
         email: ctx?.scene?.state?.email,
         wbApiKey,
-        name: `${ctx?.from?.first_name} ${ctx?.from?.last_name}`
+        name: `${ctx?.from?.first_name} ${ctx?.from?.last_name}`,
+        notification: true,
       }
       ctx.session.user = await createUser({...user}).then(r => r?.data)
       console.log('new user added', ctx.session.user?.data)
