@@ -1,16 +1,30 @@
 const axios = require('axios');
-
+const CronJobManager = require('cron-job-manager');
 const { ordersUrl, stocksUrl } = require('../config');
 
-const getStocks = async (ctx) =>  {
+const manager = new CronJobManager();
+
+const startNotifications = async (ctx) => {
+	manager.add(
+		`notification_tasks_${ctx.session.user.id}`,
+		'*/5 * * * * *',
+		async () => {
+			await checkForNewTasks(ctx);
+		},
+		{
+			start:true,
+		}
+	);
+}
+
+const getStocks = async (user) =>  {
 	await axios.get(`${stocksUrl}`, {
 		headers: {
-			authorization: ctx.session.apiKey,
+			authorization: user.wbApiKey,
 		}
 	})
 	.then((response) => {
-		stocks = response.data.stocks;
-        ctx.session.stocks = stocks;
+		ctx.session.stocks = response.data.stocks;
 	})
     .catch((e) => {
         console.error(e);
@@ -21,7 +35,7 @@ const checkForNewTasks = async (ctx) => {
 	//const date = new Date().toISOString();
 	const date = '2021-10-11T00:00:00.522Z';
 	let tasks = [];
-	await getStocks(ctx);
+	await getStocks(ctx.user);
 
 	await axios.get(`${ordersUrl}${date}&status=0&take=1000&skip=0`, {
 		headers: {
@@ -76,7 +90,8 @@ const getMsg = (task) => {
 }
 
 module.exports = {
-	checkForNewTasks
+	checkForNewTasks,
+	startNotifications
 }
 
 

@@ -7,11 +7,13 @@ const {
   validateApiByUserId,
   isApiKeyValid
 } = require("./helpers");
+const CronJobManager = require('cron-job-manager');
 const axios = require("axios");
 
 const {ordersUrl} = require("../../config");
 
-const {mainKeyboard} = require("../../utils/keyboards");
+const { mainKeyboard } = require("../../utils/keyboards");
+const { startNofications } = require("../../utils/notifier");
 const {createUser,
   isUserAlreadyCreated
 } = require("../../utils/db");
@@ -76,13 +78,15 @@ const apiHandler = Telegraf.on('text', async ctx => {
 
     if (isApiValid) {
       ctx.session.email = ctx.scene.state.email;
-      ctx.session.apiKey = ctx.message.text;
+      ctx.session.apiKey = wbApiKey;
       const user = {
         userId: ctx?.from?.id,
         username: ctx?.from?.username,
         email: ctx?.scene?.state?.email,
         wbApiKey,
-        name: `${ctx?.from?.first_name} ${ctx?.from?.last_name}`
+        name: `${ctx?.from?.first_name} ${ctx?.from?.last_name}`,
+        // TODO notification based on payment
+        notification: true
       }
       ctx.session.user = await createUser({...user}).then(r => r?.data)
       console.log('new user added', ctx.session.user?.data)
@@ -91,6 +95,8 @@ const apiHandler = Telegraf.on('text', async ctx => {
         "Супер! Теперь вы сможете пользоваться всеми возможностями бота.",
         mainKeyboard
       );
+
+      // startNofications(ctx, isApiValid);
 
       return await ctx.scene.leave();
     } else {
