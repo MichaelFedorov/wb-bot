@@ -19,7 +19,7 @@ const getStocks = async (ctx) =>  {
 
 const checkForNewTasks = async (ctx) => {
 	//const date = new Date().toISOString();
-	const date = '2021-10-06T00:00:00.522Z';
+	const date = '2021-10-11T00:00:00.522Z';
 	let tasks = [];
 	await getStocks(ctx);
 

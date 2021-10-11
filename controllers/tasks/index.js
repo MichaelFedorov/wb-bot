@@ -11,6 +11,7 @@ const {
     prevNext15TasksInlineKeyboard
 } = require('./helpers');
 const { getTasks, getTasksMsg } = require('./actions');
+const {returnToMainScreen} = require("../../utils/common");
 
 const { leave } = Stage;
 
@@ -73,7 +74,7 @@ tasks.action('next15', async ctx =>{
     await ctx.answerCbQuery();
     ctx.session.firstTask = ctx.session.lastTask;
     ctx.session.taskPage += 1;
-    
+
     if (ctx.session.taskPage !== Math.floor(ctx.session.tasks.length / 15)) {
         ctx.session.lastTask = ctx.session.firstTask + 15;
         const msg = await getTasksMsg(ctx, true);
@@ -84,7 +85,7 @@ tasks.action('next15', async ctx =>{
     } else {
         ctx.session.lastTask = ctx.session.tasks.length;
         const msg = await getTasksMsg(ctx, true);
-        return await ctx.editMessageText(msg, { 
+        return await ctx.editMessageText(msg, {
             parse_mode: 'HTML',
             ...prev15TasksInlineKeyboard
         });
@@ -119,7 +120,7 @@ tasks.action('closeAllTasks', async ctx =>{
 })
 
 tasks.leave(async ctx => {
-  await ctx.reply('Чем могу помочь?', mainKeyboard);
+  await returnToMainScreen(ctx);
 });
 
 module.exports = tasks;

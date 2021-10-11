@@ -4,9 +4,9 @@ const { getTasksMsg } = require('./actions');
 const showTasks = async ctx => {
     ctx.session.taskPage = 0;
     ctx.session.firstTask = 0;
-    ctx.session.lastTask = ctx.session.tasks?.length;
+    ctx.session.lastTask = ctx.session?.tasks?.length;
     let msg;
-    if (ctx.session.tasks.length > 15) {
+    if (ctx.session?.tasks?.length > 15) {
         ctx.session.lastTask = 15;
         msg = await getTasksMsg(ctx);
         return await ctx.replyWithHTML(msg, next15TasksInlineKeyboard);
@@ -26,9 +26,9 @@ const prev15TasksInlineKeyboard = Markup.inlineKeyboard([
 ]).resize()
 
 const prevNext15TasksInlineKeyboard = Markup.inlineKeyboard([
-    [ 
+    [
         Markup.button.callback('« Предыдущие 15', 'prev15'),
-        Markup.button.callback('Следующие 15 »', 'next15') 
+        Markup.button.callback('Следующие 15 »', 'next15')
     ],
     [ Markup.button.callback('❌ Закрыть', 'closeAllTasks') ]
 ]).resize()

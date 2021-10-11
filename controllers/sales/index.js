@@ -3,34 +3,33 @@ const axios = require('axios');
 
 const { ordersUrl } = require('../../config');
 
-const { mainKeyboard, settingsKeyboard } = require('../../utils/keyboards');
+const { salesKeyboard } = require('../../utils/keyboards');
 const {
     confirmationInlineKeyboard,
 } = require('./helpers');
 const {returnToMainScreen} = require("../../utils/common");
 const {  } = require('./actions');
 
-const settings = new BaseScene('settings');
+const sales = new BaseScene('sales');
 
-settings.enter(async (ctx) => {
+sales.enter(async (ctx) => {
     try {
-        const uid = String(ctx.from.id);
-        await ctx.reply('Что будем настривать?!', settingsKeyboard);
+      await ctx.reply('Выберите тип продаж', salesKeyboard);
     }
     catch(e) {
         console.error(e);
     }
 });
-settings.hears('⬅️ Вернуться', ctx => {
+sales.hears('⬅️ Вернуться', ctx => {
     ctx.session.replaceApi = false;
     ctx.scene.leave()
 })
-settings.hears('🔑 Заменить API Ключ', async ctx => {
-    ctx.session.replaceApi = true;
-    await ctx.reply('Введите новый API Ключ из личного кабинет WB', );
+sales.hears('Продажи за сегодня', async ctx => {
+  // TODO: API request and response needed
+    await ctx.reply('Продажи за сегодня', );
 })
 
-settings.on('text', async ctx => {
+sales.on('text', async ctx => {
     // Checking if replaceAPi selected then validate the key
     if (ctx.session.replaceApi) {
         let isApiValid = false;
@@ -64,7 +63,7 @@ settings.on('text', async ctx => {
 })
 
 
-settings.action('confirm', async ctx =>{
+sales.action('confirm', async ctx =>{
     await ctx.answerCbQuery();
     await ctx.deleteMessage();
     ctx.session.apiKey = ctx.session.newApiKey;
@@ -74,7 +73,7 @@ settings.action('confirm', async ctx =>{
     return await ctx.reply("Ключ успешно изменен!");
 })
 
-settings.action('cancel', async ctx =>{
+sales.action('cancel', async ctx =>{
     await ctx.answerCbQuery();
     await ctx.deleteMessage();
     ctx.session.replaceApi = false;
@@ -82,10 +81,10 @@ settings.action('cancel', async ctx =>{
     return await ctx.reply("Замена ключа отмена.");
 })
 
-settings.leave(async ctx => {
-  await returnToMainScreen(ctx);
+sales.leave(async ctx => {
+  await returnToMainScreen(ctx)
 });
 
 //addKey.enter
 
-module.exports = settings;
+module.exports = sales;
