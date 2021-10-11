@@ -1,13 +1,15 @@
 const axios = require('axios');
 const CronJobManager = require('cron-job-manager');
+const { sleep } = require('./common')
 const { ordersUrl, stocksUrl } = require('../config');
 
 const manager = new CronJobManager();
 
 const startNotifications = async (ctx) => {
+	ctx.session.prevTasksTotal = 0;
 	manager.add(
 		`notification_tasks_${ctx.session.user.id}`,
-		'*/5 * * * * *',
+		'* */5 * * * *',
 		async () => {
 			await checkForNewTasks(ctx);
 		},
@@ -17,10 +19,10 @@ const startNotifications = async (ctx) => {
 	);
 }
 
-const getStocks = async (user) =>  {
+const getStocks = async (ctx) =>  {
 	await axios.get(`${stocksUrl}`, {
 		headers: {
-			authorization: user.wbApiKey,
+			authorization: ctx.session.user.wbApiKey,
 		}
 	})
 	.then((response) => {
@@ -32,15 +34,15 @@ const getStocks = async (user) =>  {
 }
 
 const checkForNewTasks = async (ctx) => {
-	//const date = new Date().toISOString();
-	const date = '2021-10-11T00:00:00.522Z';
+	const date = `${new Date().toISOString().split('T')[0]}T03:00:00.522Z`;
 	let tasks = [];
-	await getStocks(ctx.user);
+	await getStocks(ctx);
 
-	await axios.get(`${ordersUrl}${date}&status=0&take=1000&skip=0`, {
+	await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
 		headers: {
-			authorization: ctx.session.apiKey
+			authorization: ctx.session.user.wbApiKey
 		}
+
 	})
 	.then((response) => {
 		tasks = response.data.orders;
@@ -49,7 +51,7 @@ const checkForNewTasks = async (ctx) => {
 		console.error(e);
 	})
 
-	//if (ctx.session.prevTasksTotal !== tasks.length) return;
+	if (ctx.session.prevTasksTotal !== tasks.length) return;
 
 	const tasksList = tasks.map(task => {
 		return {
@@ -58,18 +60,21 @@ const checkForNewTasks = async (ctx) => {
 		}
 	});
 	ctx.session.newTasksN = tasksList;
+	ctx.session.prevTasksTotal = tasks.length;
 	notifyUser(ctx);
 }
 
 const notifyUser = async ctx => {
 	// TODO: check for payments
-	ctx.session.newTasksN.forEach(task => {
+	for (task of ctx.session.newTasksN) {
 		const msg = getMsg(task);
-		return ctx.replyWithPhoto(`https://images.wbstatic.net/big/new/33420000/33425311-1.jpg`, {
+		await sleep(2);
+		// TODO: check if we can send photo
+		ctx.replyWithPhoto(`https://images.wbstatic.net/big/new/33420000/33425311-1.jpg`, {
 			parse_mode: 'HTML',
 			caption: msg
 		});
-	})
+	}
 }
 
 const getMsg = (task) => {
@@ -79,11 +84,11 @@ const getMsg = (task) => {
 	<b>${task.subject}</b>
 	------
 	<i>артикул:</i> ${task.article}
-	<i>pазмер:</i> ${task.barcode}
+	<i>штрихкод:</i> ${task.barcode}
 	<i>pазмер:</i> ${task.size}
 	<i>цена:</i> ${task.totalPrice/100} ₽
 
-	<i>Остаток: </i> <b>${task.stock}шт.</b>
+	Остаток: <b>${task.stock}шт.</b>
 		`;
 
 	return msg;

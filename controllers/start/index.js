@@ -13,12 +13,12 @@ const axios = require("axios");
 const {ordersUrl} = require("../../config");
 
 const { mainKeyboard } = require("../../utils/keyboards");
-const { startNofications } = require("../../utils/notifier");
+const { startNotifications } = require("../../utils/notifier");
 const {createUser,
   isUserAlreadyCreated
 } = require("../../utils/db");
 
-const askEmail = async (ctx) => {
+const askEmail = async (ctx, next) => {
   const user = await isUserAlreadyCreated(ctx.from.id)
     .then(r => {
       return r
@@ -31,18 +31,21 @@ const askEmail = async (ctx) => {
   if (user) {
     const isApiValid = await isApiKeyValid(user?.wbApiKey);
     if(isApiValid) {
-      ctx.session.user = user
+      ctx.session.user = user;
+      ctx.session.apiKey = user.wbApiKey;
+      await startNotifications(ctx);
       await ctx.reply(
         `Привет ${user.name}!`,
         mainKeyboard
       );
-      ctx.session = { ...ctx.session, ...user }
       return await ctx.scene.leave();
+      
     }
   } else {
     await ctx.reply('Введите ваш email', {reply_markup: {remove_keyboard: true}})
     return ctx.wizard.next();
   }
+  
     //await ctx.reply('Главное меню', mainKeyboard);
     //return await ctx.scene.leave()
 }
@@ -80,8 +83,8 @@ const apiHandler = Telegraf.on('text', async ctx => {
       ctx.session.email = ctx.scene.state.email;
       ctx.session.apiKey = wbApiKey;
       const user = {
-        userId: ctx?.from?.id,
-        username: ctx?.from?.username,
+        id: ctx?.from?.id,
+        userName: ctx?.from?.username,
         email: ctx?.scene?.state?.email,
         wbApiKey,
         name: `${ctx?.from?.first_name} ${ctx?.from?.last_name}`,
@@ -96,7 +99,7 @@ const apiHandler = Telegraf.on('text', async ctx => {
         mainKeyboard
       );
 
-      // startNofications(ctx, isApiValid);
+      startNotifications(ctx);
 
       return await ctx.scene.leave();
     } else {
