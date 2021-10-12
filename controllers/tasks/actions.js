@@ -3,6 +3,7 @@ const axios = require('axios');
 const { ordersUrl, stocksUrl } = require('../../config');
 
 const getStocks = async (ctx) =>  {
+    // TODO: check if stocks in session then not to call api
 	await axios.get(`${stocksUrl}`, {
 		headers: {
 			authorization: ctx.session.apiKey,

@@ -140,17 +140,6 @@ bot.action('showAllOrders', async (ctx) => {
 // 	ctx.replyWithHTML('Заказ принят')
 // })
 
-const showAllOrders = (ctx) => {
-	let ordersMsg = '';
-	ctx.db.orders.forEach(order => {
-		ordersMsg = `${ordersMsg}
---------------------------------------------
-📍 <b>${order.subject}</b>  |   ${order.article}   |    ${order.size.split('/')[0]}    |  ${order.totalPrice/100} ₽`});
-	ordersMsg += `
-
-<b>Всего заказов на сбор:</b> ${ctx.db.orders.length}`
-	ctx.replyWithHTML(ordersMsg);
-}
 
 
 bot.launch()
