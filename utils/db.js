@@ -74,6 +74,7 @@ const findUserById = async id => {
   }
 };
 
+
 module.exports = {
   createUser,
   findUserById,
