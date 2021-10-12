@@ -5,12 +5,9 @@ const {
 const {
   validateEmail,
   validateApiByUserId,
-  isApiKeyValid
 } = require("./helpers");
-const CronJobManager = require('cron-job-manager');
-const axios = require("axios");
 
-const {ordersUrl} = require("../../config");
+const { isApiKeyValid } = require("../../utils/common");
 
 const { mainKeyboard } = require("../../utils/keyboards");
 const { startNotifications } = require("../../utils/notifier");
@@ -30,16 +27,17 @@ const askEmail = async (ctx, next) => {
 
   if (user) {
     const isApiValid = await isApiKeyValid(user?.wbApiKey);
-    if(isApiValid) {
+    if (isApiValid) {
       ctx.session.user = user;
-      ctx.session.apiKey = user.wbApiKey;
       await startNotifications(ctx);
       await ctx.reply(
         `Привет ${user.name}!`,
         mainKeyboard
       );
       return await ctx.scene.leave();
-      
+    } else {
+      ctx.reply('Используемый ранее ключ неактивен. Для правильной работы бота необходимо заменить его в Настройках');
+      return await ctx.scene.leave();
     }
   } else {
     await ctx.reply('Введите ваш email', {reply_markup: {remove_keyboard: true}})
@@ -80,8 +78,6 @@ const apiHandler = Telegraf.on('text', async ctx => {
     // }
 
     if (isApiValid) {
-      ctx.session.email = ctx.scene.state.email;
-      ctx.session.apiKey = wbApiKey;
       const user = {
         id: ctx?.from?.id,
         userName: ctx?.from?.username,

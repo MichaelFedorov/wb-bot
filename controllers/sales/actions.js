@@ -5,7 +5,7 @@ const { ordersUrl, stocksUrl } = require('../../config');
 const getStocks = async (ctx) =>  {
 	await axios.get(`${stocksUrl}`, {
 		headers: {
-			authorization: ctx.session.apiKey,
+			authorization: ctx.session.user.wbApiKey,
 		}
 	})
 	.then((response) => {
@@ -24,7 +24,7 @@ const getTasks = async (ctx, status) => {
 
     await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
         headers: {
-            authorization: ctx.session.apiKey
+            authorization: ctx.session.user.wbApiKey
         }
     })
     .then((response) => {

@@ -1,12 +1,11 @@
-const { Telegraf, Scenes : { Stage, BaseScene }, Composer } = require('telegraf');
-const axios = require('axios');
+const { Scenes : { BaseScene } } = require('telegraf');
 
-const { ordersUrl } = require('../../config');
-
+const { isApiKeyValid } = require("../../utils/common");
 const { mainKeyboard, settingsKeyboard } = require('../../utils/keyboards');
 const {
     confirmationInlineKeyboard,
 } = require('./helpers');
+
 const {returnToMainScreen} = require("../../utils/common");
 const {  } = require('./actions');
 
@@ -14,8 +13,8 @@ const settings = new BaseScene('settings');
 
 settings.enter(async (ctx) => {
     try {
-        const uid = String(ctx.from.id);
-        await ctx.reply('Что будем настривать?!', settingsKeyboard);
+        //const uid = String(ctx.from.id);
+        await ctx.reply('Что будем настраивать?!', settingsKeyboard);
     }
     catch(e) {
         console.error(e);
@@ -33,33 +32,18 @@ settings.hears('🔑 Заменить API Ключ', async ctx => {
 settings.on('text', async ctx => {
     // Checking if replaceAPi selected then validate the key
     if (ctx.session.replaceApi) {
-        let isApiValid = false;
-            const date = new Date().toISOString();
-            const apiKey = ctx.message.text;
-
-            await ctx.reply('Выполняется проверка API ключа ...');
-            await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
-                headers: {
-                    authorization: apiKey,
-                }
-            })
-            .then((response) => {
-                isApiValid = true;
-            })
-            .catch((e) => {
-                console.log(e)
-                isApiValid = false;
-            })
-
-            if (isApiValid) {
-                ctx.session.newApiKey = apiKey;
-                ctx.session.replaceApi = false;
-                await ctx.reply('Введный ключ валиден. Заменить?', confirmationInlineKeyboard);
-            } else {
-                await ctx.replyWithHTML(`❗️ <b>Введеный вами API ключ невалиден.</b>
-    Проверьте, пожалуйста, и введите снова.
-    Если ошибка повторяется, попробуйте создать новый ключ для работы с ботом или свяжитесь с нами.`);
-            }
+        const apiKey = ctx.message.text;
+        await ctx.reply('Выполняется проверка API ключа ...');
+        const isApiValid = await isApiKeyValid(apiKey);
+        if (isApiValid) {
+            ctx.session.newApiKey = apiKey;
+            ctx.session.replaceApi = false;
+            await ctx.reply('Введенный ключ валиден. Заменить?', confirmationInlineKeyboard);
+        } else {
+            await ctx.replyWithHTML(`❗️ <b>Введеный вами API ключ невалиден.</b>
+Проверьте, пожалуйста, и введите снова.
+Если ошибка повторяется, попробуйте создать новый ключ для работы с ботом или свяжитесь с нами.`);
+        }
     }
 })
 
@@ -67,7 +51,7 @@ settings.on('text', async ctx => {
 settings.action('confirm', async ctx =>{
     await ctx.answerCbQuery();
     await ctx.deleteMessage();
-    ctx.session.apiKey = ctx.session.newApiKey;
+    ctx.session.user.wbApiKey = ctx.session.newApiKey;
     ctx.session.replaceApi = false;
     ctx.session.newApiKey = '';
     // TODO restart notification with new key
