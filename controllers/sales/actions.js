@@ -24,7 +24,7 @@ const getTasks = async (ctx, status) => {
 
     await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
         headers: {
-            authorization: ctx.session.user.wbApiKey
+            authorization: ctx.session?.user?.wbApiKey
         }
     })
     .then((response) => {
