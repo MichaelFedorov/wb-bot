@@ -43,9 +43,25 @@ const salesKeyboard = Markup.keyboard([
 ])
   .resize();
 
+const subscriptionsOnKeyboard = Markup.keyboard([
+  ["Проверить дату окончания подписки"],
+  ["Отменить подписку"],
+  ["⬅️ Вернуться"]
+])
+  .resize();
+
+const subscriptionsOffKeyboard = Markup.keyboard([
+  ["Оформить подписку"],
+  ["Условия подписки"],
+  ["⬅️ Вернуться"]
+])
+  .resize();
+
 module.exports = {
   mainKeyboard,
   tasksKeyboard,
   settingsKeyboard,
-  salesKeyboard
+  salesKeyboard,
+  subscriptionsOnKeyboard,
+  subscriptionsOffKeyboard
 }
