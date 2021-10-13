@@ -53,7 +53,7 @@ settings.action('confirm', async ctx =>{
     await ctx.deleteMessage();
     ctx.session.user.wbApiKey = ctx.session.newApiKey;
     await updateFieldDB(ctx.session.user, 'wbApiKey', ctx.session.user.wbApiKey);
-    startNotifications(ctx);
+    await startNotifications(ctx);
     ctx.session.replaceApi = false;
     ctx.session.newApiKey = '';
 
