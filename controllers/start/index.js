@@ -11,11 +11,12 @@ const { isApiKeyValid } = require("../../utils/common");
 
 const { mainKeyboard } = require("../../utils/keyboards");
 const { startNotifications } = require("../../utils/notifier");
-const {createUser,
+const {
+  createUser,
   isUserAlreadyCreated
 } = require("../../utils/db");
 
-const askEmail = async (ctx, next) => {
+const askEmail = async (ctx) => {
   const user = await isUserAlreadyCreated(ctx.from.id)
     .then(r => {
       return r
@@ -36,7 +37,7 @@ const askEmail = async (ctx, next) => {
       );
       return await ctx.scene.leave();
     } else {
-      ctx.reply('Используемый ранее ключ неактивен. Для правильной работы бота необходимо заменить его в Настройках');
+      ctx.reply('Используемый ранее ключ неактивен. Для правильной работы бота необходимо заменить его в Настройках', mainKeyboard);
       return await ctx.scene.leave();
     }
   } else {

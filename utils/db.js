@@ -12,7 +12,8 @@ const {
   Lambda,
   Select,
   Match,
-  Index
+  Index,
+  Update
 } = faunadb.query;
 let client = new faunadb.Client({
   secret: process.env.FDB_FQL_SERVER_KEY,
@@ -74,9 +75,26 @@ const findUserById = async id => {
   }
 };
 
+const updateFieldDB = async (user, fieldName, value) => {
+  try {
+    return await client.query(
+      Update(
+        Ref(Collection('Users'), user.id),
+        {
+          data: {
+            [fieldName]: value,
+          },
+        },
+      )
+    );
+  } catch (e) {
+    console.log(e.status)
+  }
+}
 
 module.exports = {
   createUser,
+  updateFieldDB,
   findUserById,
   getAllUsers,
   isUserAlreadyCreated

@@ -2,11 +2,11 @@ const { Scenes : { BaseScene } } = require('telegraf');
 
 const { isApiKeyValid } = require("../../utils/common");
 const { mainKeyboard, settingsKeyboard } = require('../../utils/keyboards');
-const {
-    confirmationInlineKeyboard,
-} = require('./helpers');
+const { confirmationInlineKeyboard } = require('./helpers');
 
 const {returnToMainScreen} = require("../../utils/common");
+const { updateFieldDB } = require("../../utils/db");
+const { startNotifications } = require("../../utils/notifier");
 const {  } = require('./actions');
 
 const settings = new BaseScene('settings');
@@ -52,8 +52,11 @@ settings.action('confirm', async ctx =>{
     await ctx.answerCbQuery();
     await ctx.deleteMessage();
     ctx.session.user.wbApiKey = ctx.session.newApiKey;
+    await updateFieldDB(ctx.session.user, 'wbApiKey', ctx.session.user.wbApiKey);
+    startNotifications(ctx);
     ctx.session.replaceApi = false;
     ctx.session.newApiKey = '';
+
     // TODO restart notification with new key
     return await ctx.reply("Ключ успешно изменен!");
 })
