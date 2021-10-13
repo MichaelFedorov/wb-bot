@@ -79,7 +79,7 @@ const apiHandler = Telegraf.on('text', async ctx => {
       console.log('new user added', ctx.session.user)
 
       await ctx.reply(
-        "Супер! Теперь вы сможете пользоваться всеми возможностями бота.",
+        "Супер! Теперь вы сможете пользоваться всеми возможностями бота. Подписка оформлена на 5 дней. Подробная информаци о подписке в меню 'Подписка'",
         mainKeyboard
       );
 
