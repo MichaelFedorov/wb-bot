@@ -53,24 +53,23 @@ const checkForNewTasks = async (ctx) => {
 
 	if (ctx.session.prevTasksTotal !== tasks.length) return;
 
-	const tasksList = tasks.map(task => {
-		return {
-			...task,
-			...ctx.session.stocks.find(item => item.barcode === task.barcode)
-		}
-	});
-	ctx.session.newTasksN = tasksList;
+  ctx.session.newTasksN = tasks?.map(task => {
+    return {
+      ...task,
+      ...ctx.session.stocks.find(item => item.barcode === task.barcode)
+    }
+  });
 	ctx.session.prevTasksTotal = tasks.length;
-	notifyUser(ctx);
+	await notifyUser(ctx);
 }
 
 const notifyUser = async ctx => {
 	// TODO: check for payments
-	for (task of ctx.session.newTasksN) {
+	for (let task of ctx.session.newTasksN) {
 		const msg = getMsg(task);
 		await sleep(2);
 		// TODO: check if we can send photo
-		ctx.replyWithPhoto(`https://images.wbstatic.net/big/new/33420000/33425311-1.jpg`, {
+		await ctx.replyWithPhoto(`https://images.wbstatic.net/big/new/33420000/33425311-1.jpg`, {
 			parse_mode: 'HTML',
 			caption: msg
 		});
@@ -78,20 +77,18 @@ const notifyUser = async ctx => {
 }
 
 const getMsg = (task) => {
-	const msg = `
+  return `
 	✅<b>Новое задание</b>
 
 	<b>${task.subject}</b>
 	------
-	<i>артикул:</i> ${task.article}
-	<i>штрихкод:</i> ${task.barcode}
-	<i>pазмер:</i> ${task.size}
-	<i>цена:</i> ${task.totalPrice/100} ₽
+	<i>артикул:</i> ${task?.article}
+	<i>штрихкод:</i> ${task?.barcode}
+	<i>pазмер:</i> ${task?.size}
+	<i>цена:</i> ${task?.totalPrice / 100} ₽
 
-	Остаток: <b>${task.stock}шт.</b>
+	Остаток: <b>${task?.stock}шт.</b>
 		`;
-
-	return msg;
 }
 
 module.exports = {

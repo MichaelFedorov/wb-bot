@@ -1,7 +1,6 @@
 const { Scenes : { Stage, BaseScene } } = require('telegraf');
 
-
-const { mainKeyboard, tasksKeyboard } = require('../../utils/keyboards');
+const { tasksKeyboard } = require('../../utils/keyboards');
 const {
     showTasks,
     next15TasksInlineKeyboard,
@@ -10,8 +9,6 @@ const {
 } = require('./helpers');
 const { getTasks, getTasksMsg } = require('./actions');
 const { returnToMainScreen, sleep } = require("../../utils/common");
-
-const { leave } = Stage;
 
 const tasks = new BaseScene('tasks');
 

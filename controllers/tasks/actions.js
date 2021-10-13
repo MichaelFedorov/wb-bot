@@ -9,8 +9,7 @@ const getStocks = async (ctx) =>  {
 		}
 	})
 	.then((response) => {
-		stocks = response.data.stocks;
-    ctx.session.stocks = stocks;
+    ctx.session.stocks = response?.data?.stocks;
 	})
   .catch((e) => {
       console.log(e);
@@ -57,7 +56,7 @@ const getTasks = async (ctx, status) => {
   })
 };
 
-const getTasksMsg = async (ctx, all) => {
+const getTasksMsg = async (ctx) => {
   let msg = '';
   const tasks = ctx.session?.tasks?.slice(ctx.session?.firstTask, ctx.session?.lastTask);
   if (tasks?.length > 0) {

@@ -5,7 +5,7 @@ const tasksScene = require('./controllers/tasks');
 const settingsScene = require('./controllers/settings');
 const salesScene = require('./controllers/sales');
 
-const { sale, allOrders } = require('./utils/constants')
+const { sale } = require('./utils/constants')
 const axios = require('axios');
 // const cron = require('node-cron');
 
