@@ -4,13 +4,8 @@ const {
 } = require("telegraf");
 const {
   validateEmail,
-  validateApiByUserId,
   isApiKeyValid
 } = require("./helpers");
-const CronJobManager = require('cron-job-manager');
-const axios = require("axios");
-
-const {ordersUrl} = require("../../config");
 
 const { mainKeyboard } = require("../../utils/keyboards");
 const { startNotifications } = require("../../utils/notifier");
@@ -18,7 +13,7 @@ const {createUser,
   isUserAlreadyCreated
 } = require("../../utils/db");
 
-const askEmail = async (ctx, next) => {
+const askEmail = async (ctx) => {
   const user = await isUserAlreadyCreated(ctx.from.id)
     .then(r => {
       return r
@@ -32,6 +27,7 @@ const askEmail = async (ctx, next) => {
     const isApiValid = await isApiKeyValid(user?.wbApiKey);
     if(isApiValid) {
       ctx.session.user = user;
+      // TODO: to resolve duplicate, we have the same wbApiKey in user object
       ctx.session.apiKey = user.wbApiKey;
       await startNotifications(ctx);
       await ctx.reply(
@@ -39,15 +35,12 @@ const askEmail = async (ctx, next) => {
         mainKeyboard
       );
       return await ctx.scene.leave();
-      
+
     }
   } else {
     await ctx.reply('Введите ваш email', {reply_markup: {remove_keyboard: true}})
     return ctx.wizard.next();
   }
-  
-    //await ctx.reply('Главное меню', mainKeyboard);
-    //return await ctx.scene.leave()
 }
 
 const emailHandler = Telegraf.on('text', async ctx => {
@@ -71,14 +64,6 @@ const apiHandler = Telegraf.on('text', async ctx => {
     let isApiValid = await isApiKeyValid(wbApiKey);
     await ctx.reply('Выполняется проверка API ключа ...');
 
-    // if(!isApiValid) {
-    //   await ctx.reply(
-    //     "Ваш API ключ уже используется другим аккаунтом",
-    //     mainKeyboard
-    //   );
-    //   return await ctx.scene.leave();
-    // }
-
     if (isApiValid) {
       ctx.session.email = ctx.scene.state.email;
       ctx.session.apiKey = wbApiKey;
@@ -99,7 +84,7 @@ const apiHandler = Telegraf.on('text', async ctx => {
         mainKeyboard
       );
 
-      startNotifications(ctx);
+      await startNotifications(ctx);
 
       return await ctx.scene.leave();
     } else {
@@ -118,46 +103,5 @@ const startWizard = new WizardScene(
   emailHandler,
   apiHandler
 );
-
-
-// start.enter(async (ctx) => {
-//   const uid = String(ctx.from.id);
-// //   const user = await User.findById(uid);
-// //   const { mainKeyboard } = getMainKeyboard(ctx);
-
-// //   if (user) {
-// //     await ctx.reply(ctx.i18n.t('scenes.start.welcome_back'), mainKeyboard);
-// //   } else {
-// //     logger.debug(ctx, 'New user has been created');
-// //     const now = new Date().getTime();
-
-// //     const newUser = new User({
-// //       _id: uid,
-// //       created: now,
-// //       username: ctx.from.username,
-// //       name: ctx.from.first_name + ' ' + ctx.from.last_name,
-// //       observableMovies: [],
-// //       lastActivity: now,
-// //       totalMovies: 0,
-// //       language: 'en'
-// //     });
-
-// //     await newUser.save();
-//     await ctx.reply('Введите ваш email адрес');
-// //   }
-// });
-
-// start.leave(async (ctx: ContextMessageUpdate) => {
-//   const { mainKeyboard } = getMainKeyboard(ctx);
-
-//   await ctx.reply(ctx.i18n.t('shared.what_next'), mainKeyboard);
-// });
-
-// start.command('saveme', leave());
-// start.action(/languageChange/, languageChangeAction);
-// start.action(/confirmAccount/, async (ctx: ContextMessageUpdate) => {
-//   await ctx.answerCbQuery();
-//   ctx.scene.leave();
-// });
 
 module.exports = startWizard;

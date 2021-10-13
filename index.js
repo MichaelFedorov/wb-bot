@@ -5,7 +5,7 @@ const tasksScene = require('./controllers/tasks');
 const settingsScene = require('./controllers/settings');
 const salesScene = require('./controllers/sales');
 
-const { sale, allOrders } = require('./utils/constants')
+const { sale } = require('./utils/constants')
 const axios = require('axios');
 // const cron = require('node-cron');
 
@@ -32,13 +32,9 @@ bot.hears('⚙️ Настройки', ctx => ctx.scene.enter('settings'));
 bot.hears('💰 Продажи', ctx => ctx.scene.enter('sales'));
 
 bot.hears(sale, (ctx) => {
-	ctx.db.orders = [],
+	ctx.db.orders = [];
 	ctx.db.ordersTotal = 0;
 	ctx.db.fbsDate = new Date().toISOString()
-})
-
-bot.hears(allOrders, (ctx) => {
-	showAllOrders(ctx);
 })
 
 // const reset
@@ -77,19 +73,25 @@ const getOrders = async (ctx) => {
 }
 
 const getStocks = async ctx =>  {
-	await axios.get(`${config.stocksUrl}`, {
-		headers: {
-			authorization: ctx.session.apiKey || config.authorizationKey,
-		}
-	})
-	.then((response) => {
-		stocks = response.data.stocks
-	})
-	return stocks
+  let stocks = []
+  try {
+    await axios.get(`${config.stocksUrl}`, {
+      headers: {
+        authorization: ctx.session.apiKey || config.authorizationKey,
+      }
+    })
+      .then((response) => {
+        stocks = response.data.stocks
+      })
+
+  } catch (e) {
+    console.error(e)
+  }
+  return stocks
 }
 
 const newOrderReplyWithPhoto = (order, ctx) => {
-	orderArticle = data.report.find(item => item.barcode === order.barcode).article;
+	const orderArticle = data.report.find(item => item.barcode === order.barcode).article;
 	return ctx.replyWithPhoto({ url: `https://images.wbstatic.net/big/new/${orderArticle.substr(0,4)}0000/${orderArticle}-1.jpg` });
 }
 
