@@ -33,6 +33,7 @@ const askEmail = async (ctx) => {
       return await ctx.scene.leave();
     } else {
       ctx.reply('Используемый ранее ключ неактивен. Для правильной работы бота необходимо заменить его в Настройках', mainKeyboard);
+      ctx.session.user = user;
       return await ctx.scene.leave();
     }
   } else {
