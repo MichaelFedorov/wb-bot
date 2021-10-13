@@ -66,7 +66,7 @@ sales.on('text', async ctx => {
 sales.action('confirm', async ctx =>{
     await ctx.answerCbQuery();
     await ctx.deleteMessage();
-    ctx.session.user.wbApiKey = ctx.session.newApiKey;
+    ctx.session.user.wbApiKey = ctx.session?.newApiKey;
     ctx.session.replaceApi = false;
     ctx.session.newApiKey = '';
     // TODO restart notification with new key
