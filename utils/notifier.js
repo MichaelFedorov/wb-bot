@@ -9,12 +9,12 @@ const startNotifications = async (ctx) => {
 	ctx.session.prevTasksTotal = 0;
 	manager.add(
 		`notification_tasks_${ctx.session.user.id}`,
-		'* */5 * * * *',
+		'* */10 * * * *',
 		async () => {
 			await checkForNewTasks(ctx);
 		},
 		{
-			start:true,
+			start: true,
 		}
 	);
 }
@@ -34,7 +34,7 @@ const getStocks = async (ctx) =>  {
 }
 
 const checkForNewTasks = async (ctx) => {
-	const date = `${new Date().toISOString().split('T')[0]}T03:00:00.522Z`;
+	const date = new Date( Date.now() - 1000 * 600 ).toISOString();
 	let tasks = [];
 	await getStocks(ctx);
 
@@ -42,23 +42,22 @@ const checkForNewTasks = async (ctx) => {
 		headers: {
 			authorization: ctx.session.user.wbApiKey
 		}
-
 	})
 	.then((response) => {
-		tasks = response.data.orders;
+		tasks = response.data.orders.filter(item => item.status === 0);
 	})
 	.catch((e) => {
 		console.error(e);
 	})
 
-	if (ctx.session.prevTasksTotal !== tasks.length) return;
+	if (ctx.session.prevTasksTotal === tasks.length) return;
 
-  ctx.session.newTasksN = tasks?.map(task => {
-    return {
-      ...task,
-      ...ctx.session.stocks.find(item => item.barcode === task.barcode)
-    }
-  });
+	ctx.session.newTasksN = tasks?.map(task => {
+		return {
+			...task,
+			...ctx.session.stocks.find(item => item.barcode === task.barcode)
+		}
+	});
 	ctx.session.prevTasksTotal = tasks.length;
 	await notifyUser(ctx);
 }
