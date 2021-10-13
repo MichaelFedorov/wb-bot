@@ -29,7 +29,8 @@ bot.start(async (ctx) => {
 });
 bot.hears('📦 Сборочные задания', ctx => ctx.scene.enter('tasks'));
 bot.hears('⚙️ Настройки', ctx => ctx.scene.enter('settings'));
-bot.hears('💰 Продажи', ctx => ctx.scene.enter('sales'));
+//bot.hears('💰 Продажи', ctx => ctx.scene.enter('sales'));
+bot.hears('💰 Продажи', ctx => ctx.reply('В разработке'));
 
 // bot.action('accept', async (ctx) => {
 // 	await ctx.answerCbQuery();

@@ -16,7 +16,7 @@ tasks.enter(async (ctx) => {
     try {
         ctx.reply('Выберите тип заданиий', tasksKeyboard);
         await sleep(0.8);
-        return await ctx.reply('Задания отображаются за последние 96 часов');
+        return await ctx.reply('Задания отображаются за последние 120 часов');
     }
     catch(e) {
         console.error(e)

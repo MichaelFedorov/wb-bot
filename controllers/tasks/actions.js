@@ -5,7 +5,7 @@ const getStocks = async (ctx) =>  {
     // TODO: check if stocks in session then not to call api
 	await axios.get(`${stocksUrl}`, {
 		headers: {
-			authorization: ctx.session.user.wbApiKey,
+			authorization: ctx.session.user?.wbApiKey,
 		}
 	})
 	.then((response) => {
@@ -25,7 +25,7 @@ const getTasks = async (ctx, status) => {
 
   await axios.get(`${ordersUrl}${date.toISOString()}&take=1000&skip=0`, {
     headers: {
-      authorization: ctx.session.user.wbApiKey
+      authorization: ctx.session.user?.wbApiKey
     }
   })
   .then((response) => {
@@ -62,8 +62,7 @@ const getTasksMsg = async (ctx) => {
       tasks?.forEach((task, index) => {
           msg = `${msg}
 --------------
-📦 0${ctx.session.firstTask + index + 1} | <b>${task.subject}</b> | ${task.article} | ${task.size.split('/')[0]} | ${task.totalPrice/100} ₽
-шк ${task.barcode} | стикер ${task.sticker.wbStickerId}
+📦 0${ctx.session.firstTask + index + 1}  |  <b>${task.subject}</b>  |  ${task.article}  |  ${task.size.split('/')[0]}  |  ${task.totalPrice/100} ₽  |  шк ${task.barcode}  |  стикер ${task.sticker.wbStickerId}
 <b>В наличии:</b> ${task.stock} шт.
   `});
 
