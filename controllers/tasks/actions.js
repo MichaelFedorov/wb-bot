@@ -1,32 +1,32 @@
 const axios = require('axios');
-
 const { ordersUrl, stocksUrl } = require('../../config');
 
 const getStocks = async (ctx) =>  {
     // TODO: check if stocks in session then not to call api
 	await axios.get(`${stocksUrl}`, {
 		headers: {
-			authorization: ctx.session.apiKey,
+			authorization: ctx.session.user.wbApiKey,
 		}
 	})
 	.then((response) => {
     ctx.session.stocks = response?.data?.stocks;
 	})
-    .catch((e) => {
-        console.log(e);
-    })
+  .catch((e) => {
+      console.log(e);
+  })
 }
 
 const getTasks = async (ctx, status) => {
   const date = new Date();
   // set date -4 days from now
   date.setDate(date.getDate() - 4)
-  date.toISOString()
-  await getStocks(ctx);
+  if(!ctx.session.stock) { 
+    await getStocks(ctx);
+  }
 
-  await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
+  await axios.get(`${ordersUrl}${date.toISOString()}&take=1000&skip=0`, {
     headers: {
-      authorization: ctx.session.apiKey
+      authorization: ctx.session.user.wbApiKey
     }
   })
   .then((response) => {
@@ -47,7 +47,12 @@ const getTasks = async (ctx, status) => {
     }
   })
   .catch((e) => {
-      console.log(e)
+      console.log(e);
+      ctx.reply('Используемый ранее ключ неактивен. Для правильной работы бота необходимо заменить его в Настройках');
+      ctx.session.tasks = [];
+      ctx.session.newTasks = [];
+      ctx.session.readyTasks = [];
+      ctx.session.onAssemblyTasks = [];
   })
 };
 

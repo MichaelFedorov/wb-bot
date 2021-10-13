@@ -51,25 +51,8 @@ const validateApiByUserId = async (userId, wbApiKey) => {
   }
 };
 
-const isApiKeyValid = async apiKey => {
-  const date = new Date().toISOString();
-  return await axios.get(`${ordersUrl}${date}&take=1&skip=0`, {
-    headers: {
-      authorization: apiKey,
-    }
-  })
-    .then((response) => {
-      return true;
-    })
-    .catch((e) => {
-      console.log(e)
-      return false;
-    });
-};
-
 module.exports = {
   findUserByEmail,
-  isApiKeyValid,
   matchUserIdWithAoiKey,
   validateEmail,
   validateApiByUserId

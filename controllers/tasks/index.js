@@ -8,40 +8,19 @@ const {
     prevNext15TasksInlineKeyboard
 } = require('./helpers');
 const { getTasks, getTasksMsg } = require('./actions');
-const {returnToMainScreen} = require("../../utils/common");
+const { returnToMainScreen, sleep } = require("../../utils/common");
 
 const tasks = new BaseScene('tasks');
 
 tasks.enter(async (ctx) => {
     try {
-        const uid = String(ctx.from.id);
-    //   const user = await User.findById(uid);
-    //   const { mainKeyboard } = getMainKeyboard(ctx);
-
-    //   if (user) {
-    //     await ctx.reply(ctx.i18n.t('scenes.start.welcome_back'), mainKeyboard);
-    //   } else {
-    //     logger.debug(ctx, 'New user has been created');
-    //     const now = new Date().getTime();
-
-    //     const newUser = new User({
-    //       _id: uid,
-    //       created: now,
-    //       username: ctx.from.username,
-    //       name: ctx.from.first_name + ' ' + ctx.from.last_name,
-    //       observableMovies: [],
-    //       lastActivity: now,
-    //       totalMovies: 0,
-    //       language: 'en'
-    //     });
-
-    //     await newUser.save();
-        await ctx.reply('Выберите тип заданиий', tasksKeyboard);
+        ctx.reply('Выберите тип заданиий', tasksKeyboard);
+        await sleep(0.8);
+        return await ctx.reply('Задания отображаются за последние 96 часов');
     }
-    catch {
-        console.error()
+    catch(e) {
+        console.error(e)
     }
-//   }
 });
 
 

@@ -1,15 +1,12 @@
-const {
-  Telegraf,
-  Scenes: {WizardScene},
-} = require("telegraf");
-const {
-  validateEmail,
-  isApiKeyValid
-} = require("./helpers");
+const { Telegraf, Scenes: { WizardScene } } = require("telegraf");
+const { validateEmail } = require("./helpers");
+
+const { isApiKeyValid } = require("../../utils/common");
 
 const { mainKeyboard } = require("../../utils/keyboards");
 const { startNotifications } = require("../../utils/notifier");
-const {createUser,
+const {
+  createUser,
   isUserAlreadyCreated
 } = require("../../utils/db");
 
@@ -25,8 +22,7 @@ const askEmail = async (ctx) => {
 
   if (user) {
     const isApiValid = await isApiKeyValid(user?.wbApiKey);
-    if(isApiValid) {
-      ctx.session.user = user;
+    if (isApiValid) {
       // TODO: to resolve duplicate, we have the same wbApiKey in user object
       ctx.session.apiKey = user.wbApiKey;
       await startNotifications(ctx);
@@ -35,7 +31,9 @@ const askEmail = async (ctx) => {
         mainKeyboard
       );
       return await ctx.scene.leave();
-
+    } else {
+      ctx.reply('Используемый ранее ключ неактивен. Для правильной работы бота необходимо заменить его в Настройках', mainKeyboard);
+      return await ctx.scene.leave();
     }
   } else {
     await ctx.reply('Введите ваш email', {reply_markup: {remove_keyboard: true}})
@@ -65,8 +63,6 @@ const apiHandler = Telegraf.on('text', async ctx => {
     await ctx.reply('Выполняется проверка API ключа ...');
 
     if (isApiValid) {
-      ctx.session.email = ctx.scene.state.email;
-      ctx.session.apiKey = wbApiKey;
       const user = {
         id: ctx?.from?.id,
         userName: ctx?.from?.username,
