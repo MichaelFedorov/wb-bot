@@ -6,7 +6,7 @@ const {  } = require('./actions');
 const subscribe = new BaseScene('subscribe');
 
 subscribe.enter(async (ctx) => {
-    const isSubscribedUser = ctx.session?.user?.subscribeValid > new Date().toISOString()
+    const isSubscribedUser = new Date(ctx.session?.user?.subscribeValid) > new Date()
     try {
         await ctx.reply('Подписка',  isSubscribedUser ? subscriptionsOnKeyboard : subscriptionsOffKeyboard);
     }
@@ -19,7 +19,7 @@ subscribe.hears('⬅️ Вернуться', ctx => {
     ctx.scene.leave()
 })
 subscribe.hears('Проверить дату окончания подписки', async ctx => {
-    await ctx.reply(`Подписка действует до ${ctx.session?.user?.subscribeValid}`, );
+    await ctx.reply(`Подписка действует до ${new Date(ctx.session?.user?.subscribeValid).toLocaleString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric'})}`, );
 })
 
 subscribe.on('text', async ctx => {
