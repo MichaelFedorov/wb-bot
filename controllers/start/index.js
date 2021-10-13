@@ -71,7 +71,9 @@ const apiHandler = Telegraf.on('text', async ctx => {
         wbApiKey,
         name: `${ctx?.from?.first_name} ${ctx?.from?.last_name}`,
         // TODO notification based on payment
-        notification: true
+        notification: true,
+        /* initial subscription for next 5 days */
+        subscribeValid: new Date(new Date().getTime() + 5*24*60*60*1000).toISOString()
       }
       ctx.session.user = await createUser({...user}).then(r => r?.data)
       console.log('new user added', ctx.session.user?.data)

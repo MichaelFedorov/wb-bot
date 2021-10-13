@@ -4,13 +4,7 @@ const startWizard = require('./controllers/start');
 const tasksScene = require('./controllers/tasks');
 const settingsScene = require('./controllers/settings');
 const salesScene = require('./controllers/sales');
-
-const { sale } = require('./utils/constants')
-const axios = require('axios');
-// const cron = require('node-cron');
-
-const config = require('./config');
-const data = require('./data');
+const subscribeScene = require('./controllers/subscriptions');
 
 const bot = new Telegraf(process?.env?.BOT_TOKEN);
 
@@ -18,7 +12,8 @@ const stage = new Stage([
 	startWizard,
 	tasksScene,
 	settingsScene,
-  salesScene
+  salesScene,
+  subscribeScene
 ]);
 
 bot.use(session());
@@ -30,6 +25,7 @@ bot.start(async (ctx) => {
 bot.hears('📦 Сборочные задания', ctx => ctx.scene.enter('tasks'));
 bot.hears('⚙️ Настройки', ctx => ctx.scene.enter('settings'));
 bot.hears('💰 Продажи', ctx => ctx.scene.enter('sales'));
+bot.hears('Подписка', ctx => ctx.scene.enter('subscribe'));
 
 // bot.action('accept', async (ctx) => {
 // 	await ctx.answerCbQuery();
