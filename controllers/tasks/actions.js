@@ -18,8 +18,7 @@ const getStocks = async (ctx) =>  {
 
 const getTasks = async (ctx, status) => {
   const date = new Date();
-  // set date -4 days from now
-  date.setDate(date.getDate() - 4)
+  date.setDate(date.getDate() - 5);
   if(!ctx.session.stock) { 
     await getStocks(ctx);
   }
