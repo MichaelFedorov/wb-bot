@@ -12,18 +12,22 @@ const sleep = sec => {
 
 const isApiKeyValid = async apiKey => {
   const date = new Date().toISOString();
-  return await axios.get(`${ordersUrl}${date}&take=1&skip=0`, {
-    headers: {
-      authorization: apiKey,
-    }
-  })
-    .then((response) => {
-      return true;
+  if (apiKey.length === 149) {
+    return await axios.get(`${ordersUrl}${date}&take=1&skip=0`, {
+      headers: {
+        authorization: apiKey,
+      }
     })
-    .catch((e) => {
-      console.log(e)
-      return false;
-    });
+      .then((response) => {
+        return true;
+      })
+      .catch((e) => {
+        console.log(e)
+        return false;
+      });
+  } else {
+    return false
+  }
 };
 
 module.exports = {

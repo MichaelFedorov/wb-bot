@@ -42,7 +42,7 @@ tasks.hears('🚚 Собранные', async ctx => {
     showTasks(ctx);
 })
 
-tasks.hears('⬅️ Вернуться', ctx => ctx.scene.leave())
+tasks.hears('⬅️ Вернуться в главное меню', ctx => ctx.scene.leave())
 
 tasks.action('next15', async ctx =>{
     await ctx.answerCbQuery();
