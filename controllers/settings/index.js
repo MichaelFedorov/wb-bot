@@ -20,10 +20,16 @@ settings.enter(async (ctx) => {
         console.error(e);
     }
 });
-settings.hears('⬅️ Вернуться', ctx => {
+settings.hears('⬅️ Вернуться в главное меню', async ctx => {
     ctx.session.replaceApi = false;
-    ctx.scene.leave()
+    return await ctx.scene.leave();
 })
+
+settings.command('start', async ctx => {
+    ctx.session.replaceApi = false;
+    return await ctx.scene.leave();
+})
+
 settings.hears('🔑 Заменить API Ключ', async ctx => {
     ctx.session.replaceApi = true;
     await ctx.reply('Введите новый API Ключ из личного кабинет WB', );
@@ -47,7 +53,6 @@ settings.on('text', async ctx => {
     }
 })
 
-
 settings.action('confirm', async ctx =>{
     await ctx.answerCbQuery();
     await ctx.deleteMessage();
@@ -66,7 +71,7 @@ settings.action('cancel', async ctx =>{
     await ctx.deleteMessage();
     ctx.session.replaceApi = false;
     ctx.session.newApiKey = '';
-    return await ctx.reply("Замена ключа отмена.");
+    return await ctx.reply("Замена ключа отменена.");
 })
 
 settings.leave(async ctx => {

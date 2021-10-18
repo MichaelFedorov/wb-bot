@@ -27,7 +27,7 @@ const askEmail = async (ctx) => {
       // TODO: to resolve duplicate, we have the same wbApiKey in user object
       await startNotifications(ctx);
       await ctx.reply(
-        `Привет ${user.name}!`,
+        `Привет, ${user.name}!`,
         mainKeyboard
       );
       return await ctx.scene.leave();
@@ -47,8 +47,10 @@ const emailHandler = Telegraf.on('text', async ctx => {
     ctx.scene.state.email = ctx.message.text;
 
     await ctx.replyWithHTML(
-      `Отлично! Далее введите <b>API ключ</b> от новой версии API. Если вы его еще не создавали, зайдите в личный кабинет WB и выполните необходимые действия.`
-    );
+      `Отлично! Далее введите <b>токен для работы с API (API ключ):</b> от новой версии API. 
+      
+Если у вас его нет, зайдите в личный кабинет WB -> Мой профиль -> Доступ к новому API и нажмите Сгенерировать токен. 
+    `);
 
     return ctx.wizard.next();
   } else {
@@ -76,7 +78,9 @@ const apiHandler = Telegraf.on('text', async ctx => {
       console.log('new user added', ctx.session.user?.data)
 
       await ctx.reply(
-        "Супер! Теперь вы сможете пользоваться всеми возможностями бота.",
+        `Супер! Теперь вы будете автоматически получать уведомления о новых сборочных заданиях в боте. 
+
+Также вы можете пользоваться всеми возможностями бота при помощи главного меню.`,
         mainKeyboard
       );
 
@@ -84,7 +88,7 @@ const apiHandler = Telegraf.on('text', async ctx => {
 
       return await ctx.scene.leave();
     } else {
-      await ctx.replyWithHTML(`❗️ <b>Введеный вами API ключ не принимается серверами wildberries.</b>
+      await ctx.replyWithHTML(`❗️ <b>Введеный вами API ключ не принимается серверами Wildberries.</b>
 Проверьте, пожалуйста, и введите снова.
 Если ошибка повторяется, попробуйте создать новый ключ для работы с ботом или свяжитесь с нами.`);
     }
