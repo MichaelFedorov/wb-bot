@@ -1,18 +1,44 @@
+const axios = require('axios')
+const CP_API = {
+  create: 'https://api.cloudpayments.ru/test/subscriptions/create'
+}
 
-const payForSubscription = (user) => {
+const { ClientService } = require('cloudpayments');
+const client = new ClientService({
+  endpoint: 'https://api.cloudpayments.ru/test', // test endpoint for validation
+});
+
+const getPeriodByType = (type) => {
+  switch (type) {
+    case 'year':
+      return 12;
+    case 'quarter':
+      return 3;
+    case 'halfYear':
+      return 6;
+    default:
+      return 1;
+  }
+}
+
+
+const initiateSubscription = async (user, subscriptionType) => {
   const data = {
     "token":"477BBA133C182267FE5F086924ABDC5DB71F77BFC27F01F2843F2CDC69D89F05",
     "accountId":user?.email,
-    "description":"Ежемесячная подписка на бота WB BOT",
+    "description":"Ежемесячная подписка на бота Seller GO BOT",
     "email":user?.email,
     "amount":500,
     "currency":"RUB",
     "requireConfirmation":false,
     "startDate": new Date().toISOString(), // "2014-08-06T16:46:29.5377246Z",
     "interval":"Month",
-    "period":1
+    "period":getPeriodByType(subscriptionType)
   }
-
+  const cloudPayApi = client.getClientApi()
+  const response = await cloudPayApi.createSubscription(data)
+  console.log({response})
+  return response
   /* cloudPayments API response example
   * {
    "Model":{
@@ -44,6 +70,11 @@ const payForSubscription = (user) => {
   *  */
 }
 
+const cancelSubscription = async Id => {
+  await client.cancelSubscription({Id})
+}
+
 module.exports = {
-  payForSubscription
+  initiateSubscription,
+  cancelSubscription
 }
