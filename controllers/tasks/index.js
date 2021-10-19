@@ -8,14 +8,14 @@ const {
     prevNext15TasksInlineKeyboard
 } = require('./helpers');
 const { getTasks, getTasksMsg, getStickersPdf } = require('./actions');
-const { returnToMainScreen, sleep } = require("../../utils/common");
+const { sleep } = require("../../utils/common");
 
 const tasks = new BaseScene('tasks');
 
 tasks.enter(async (ctx) => {
     try {
-        ctx.reply('Выберите тип заданиий', tasksKeyboard);
-        await sleep(0.8);
+        ctx.reply('Выберите из списка тип заданий, по которому нужна информация.', tasksKeyboard);
+        await sleep(0.5);
         return await ctx.reply('Задания отображаются за последние 120 часов');
     }
     catch(e) {
@@ -41,8 +41,6 @@ tasks.hears('🚚 Собранные', async ctx => {
     ctx.session.tasks = ctx.session.readyTasks;
     showTasks(ctx);
 })
-
-tasks.hears('⬅️ Вернуться в главное меню', ctx => ctx.scene.leave())
 
 tasks.action('next15', async ctx =>{
     await ctx.answerCbQuery();
@@ -97,9 +95,5 @@ tasks.action('closeAllTasks', async ctx =>{
     await ctx.answerCbQuery();
     return await ctx.deleteMessage();
 })
-
-tasks.leave(async ctx => {
-  await returnToMainScreen(ctx);
-});
 
 module.exports = tasks;

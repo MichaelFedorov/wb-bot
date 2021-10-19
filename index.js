@@ -1,16 +1,10 @@
 require('dotenv').config()
 const { Telegraf, session, Scenes: { Stage }, Markup } = require('telegraf');
+const { returnToMainScreen } = require('./utils/common');
 const startWizard = require('./controllers/start');
 const tasksScene = require('./controllers/tasks');
 const settingsScene = require('./controllers/settings');
 const salesScene = require('./controllers/sales');
-
-const { sale } = require('./utils/constants')
-const axios = require('axios');
-// const cron = require('node-cron');
-
-const config = require('./config');
-const data = require('./data');
 
 const bot = new Telegraf(process?.env?.BOT_TOKEN);
 
@@ -21,16 +15,28 @@ const stage = new Stage([
   salesScene
 ]);
 
+
+stage.command('start', ctx => {
+	ctx.scene.leave();
+	ctx.scene.enter('start')
+})
+stage.hears('⬅️ Вернуться в главное меню', async ctx => {
+    //ctx.session?.replaceApi = false;
+    await ctx.scene.leave();
+    return returnToMainScreen(ctx);
+})
+
 bot.use(session());
 bot.use(stage.middleware());
 
-bot.start(async (ctx) => {
-	ctx.scene.enter('start');
-});
+
 bot.hears('📦 Сборочные задания', ctx => ctx.scene.enter('tasks'));
 bot.hears('⚙️ Настройки', ctx => ctx.scene.enter('settings'));
 //bot.hears('💰 Продажи', ctx => ctx.scene.enter('sales'));
-bot.hears('💰 Продажи', ctx => ctx.reply('В разработке'));
+bot.hears('💰 Продажи', ctx => ctx.reply('В разработке...'));
+bot.hears('✍️ Связаться с нами', ctx => ctx.reply('Чтобы связаться с нами и задать вопрос, оставьте сообщение в @SellerGoChat'));
+
+
 
 // bot.action('accept', async (ctx) => {
 // 	await ctx.answerCbQuery();

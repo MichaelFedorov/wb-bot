@@ -10,7 +10,7 @@ const {
   isUserAlreadyCreated
 } = require("../../utils/db");
 
-const askEmail = async (ctx) => {
+const askEmail = async (ctx, next) => {
   const user = await isUserAlreadyCreated(ctx.from.id)
     .then(r => {
       return r
@@ -27,16 +27,17 @@ const askEmail = async (ctx) => {
       // TODO: to resolve duplicate, we have the same wbApiKey in user object
       await startNotifications(ctx);
       await ctx.reply(
-        `Привет, ${user.name}!`,
+        `Привет, ${ctx?.from?.first_name}!`,
         mainKeyboard
       );
+      
       return await ctx.scene.leave();
     } else {
-      ctx.reply('Используемый ранее ключ неактивен. Для правильной работы бота необходимо заменить его в Настройках', mainKeyboard);
-      return await ctx.scene.leave();
+      ctx.reply('❗️Используемый ранее ключ неактивен. Для правильной работы необходимо заменить его в Настройках бота.', mainKeyboard);
+      await ctx.scene.leave();
     }
   } else {
-    await ctx.reply('Введите ваш email', {reply_markup: {remove_keyboard: true}})
+    await ctx.replyWithHTML(`Привет, ${ctx?.from?.first_name}! Я бот <b>SellerGo</b> - ваш личный ассистент в мире Wildberries. Чтобы начать нашу работу, введите, пожалуйста, e-mail.`, {reply_markup: {remove_keyboard: true}})
     return ctx.wizard.next();
   }
 }
@@ -47,14 +48,14 @@ const emailHandler = Telegraf.on('text', async ctx => {
     ctx.scene.state.email = ctx.message.text;
 
     await ctx.replyWithHTML(
-      `Отлично! Далее введите <b>токен для работы с API (API ключ):</b> от новой версии API. 
-      
-Если у вас его нет, зайдите в личный кабинет WB -> Мой профиль -> Доступ к новому API и нажмите Сгенерировать токен. 
+      `Отлично! Теперь введите <b>токен (API ключ)</b> для работы  от новой версии API. 
+
+Чтобы скопировать токен, зайдите в личный кабинет WB -> Мой профиль -> Доступ к новому API и нажмите Сгенерировать токен.
     `);
 
     return ctx.wizard.next();
   } else {
-    await ctx.replyWithHTML(`❗️ <b>Вы ввели неверный email</b>. Проверьте и введите снова`);
+    await ctx.replyWithHTML(`❗️Что-то не так… вышлите e-mail ещё раз.`);
   }
 });
 
@@ -62,7 +63,7 @@ const apiHandler = Telegraf.on('text', async ctx => {
   const wbApiKey = ctx.message.text;
   try {
     let isApiValid = await isApiKeyValid(wbApiKey);
-    await ctx.reply('Выполняется проверка API ключа ...');
+    await ctx.reply('Идёт проверка API ключа...');
 
     if (isApiValid) {
       const user = {
@@ -78,9 +79,12 @@ const apiHandler = Telegraf.on('text', async ctx => {
       console.log('new user added', ctx.session.user?.data)
 
       await ctx.reply(
-        `Супер! Теперь вы будете автоматически получать уведомления о новых сборочных заданиях в боте. 
+        `Супер! У вас активирован бесплатный пробный период на 5 дней.
 
-Также вы можете пользоваться всеми возможностями бота при помощи главного меню.`,
+Теперь вы будете получать уведомления о новых сборочных заданиях в telegram. 
+
+Кроме того, предлагаем ознакомиться со всеми возможностями бота в главном меню. 
+        `,
         mainKeyboard
       );
 
@@ -88,9 +92,11 @@ const apiHandler = Telegraf.on('text', async ctx => {
 
       return await ctx.scene.leave();
     } else {
-      await ctx.replyWithHTML(`❗️ <b>Введеный вами API ключ не принимается серверами Wildberries.</b>
-Проверьте, пожалуйста, и введите снова.
-Если ошибка повторяется, попробуйте создать новый ключ для работы с ботом или свяжитесь с нами.`);
+      await ctx.replyWithHTML(`❗️Хм… Введённый API ключ не принимается серверами Wildberries. Проверьте, пожалуйста, и введите его снова.
+
+Если ошибка повторяется, попробуйте создать новый ключ для работы с ботом. Это просто: зайдите в личный кабинет WB -> Мой профиль -> Доступ к новому API и нажмите Сгенерировать токен.
+
+Если не получается, напишите в @SellerGoChat, всё решим`);
     }
   } catch (e) {
     console.error(e)
