@@ -7,7 +7,7 @@ const {
     prev15TasksInlineKeyboard,
     prevNext15TasksInlineKeyboard
 } = require('./helpers');
-const { getTasks, getTasksMsg } = require('./actions');
+const { getTasks, getTasksMsg, getStickersPdf } = require('./actions');
 const { returnToMainScreen, sleep } = require("../../utils/common");
 
 const tasks = new BaseScene('tasks');
@@ -86,6 +86,11 @@ tasks.action('prev15', async ctx =>{
             ...next15TasksInlineKeyboard
         });
     }
+})
+
+tasks.action('downloadStickers', async ctx =>{
+    await ctx.answerCbQuery();
+    getStickersPdf(ctx);
 })
 
 tasks.action('closeAllTasks', async ctx =>{
