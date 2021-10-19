@@ -1,6 +1,7 @@
 const { Scenes : { BaseScene } } = require('telegraf');
 const { subscriptionsOnKeyboard, subscriptionsOffKeyboard } = require('../../utils/keyboards');
 const { returnToMainScreen } = require('../../utils/common');
+const { initiateSubscription } = require("../../utils/cloudPayments");
 const {  } = require('./actions');
 
 const subscribe = new BaseScene('subscribe');
@@ -22,11 +23,14 @@ subscribe.hears('Проверить дату окончания подписки
     await ctx.reply(`Подписка действует до ${new Date(ctx.session?.user?.subscribeValid).toLocaleString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric'})}`, );
 })
 
-subscribe.on('text', async ctx => {
+// subscribe.on('text', async ctx => {
+//
+// })
 
-})
-
-subscribe.hears('Оформить подписку', async ctx =>{
+subscribe.hears('Оформить подписку', async ctx => {
+  console.log('начинаем офрмлять')
+  const res = await initiateSubscription(ctx.session?.user);
+  console.log({res})
   return await ctx.reply('Подписка успешно оформлена');
 })
 
