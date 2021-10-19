@@ -47,11 +47,12 @@ const getTasks = async (ctx, status) => {
   })
   .catch((e) => {
       console.log(e);
-      ctx.reply('Используемый ранее ключ неактивен. Для правильной работы бота необходимо заменить его в Настройках');
+      ctx.reply('❗️Используемый ранее ключ неактивен. Для правильной работы и получения уведомлений необходимо заменить его в Настройках бота');
       ctx.session.tasks = [];
       ctx.session.newTasks = [];
       ctx.session.readyTasks = [];
       ctx.session.onAssemblyTasks = [];
+      ctx.session.tasksForStickers = []
   })
 };
 
@@ -72,7 +73,7 @@ const getTasksMsg = async (ctx) => {
 
 Показано c <b>${ctx.session.firstTask + 1}</b> по <b>${ctx.session.lastTask}</b> из <b>${ctx.session.tasks.length}</b> заданий. `;
   } else {
-      msg = 'У вас пока нет заданий'
+      msg = 'Заданий пока нет. Не волнуйтесь, скоро начнут покупать!'
   }
   return msg;
 }
@@ -88,7 +89,9 @@ const getStickersPdf = async (ctx) =>  {
   })
   .then((response) => {
     let buff = new Buffer.from(response?.data.data.file, 'base64');
-    ctx.telegram.sendDocument( ctx.chat.id, { source: buff, filename: 'stickers.pdf'});
+    ctx.telegram.sendDocument( ctx.chat.id, { 
+      source: buff, 
+      filename: `stickers_${ctx.session?.firstTask+1}-${ctx.session?.lastTask}.pdf`});
   })
   .catch((e) => {
     console.log(e);
