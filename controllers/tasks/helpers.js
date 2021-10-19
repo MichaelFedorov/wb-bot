@@ -17,11 +17,13 @@ const showTasks = async ctx => {
 
 const next15TasksInlineKeyboard = Markup.inlineKeyboard([
     [ Markup.button.callback('Cледующие 15 »', 'next15') ],
+    [ Markup.button.callback('📥 Скачать стикеры PDF', 'downloadStickers') ],
     [ Markup.button.callback('❌ Закрыть', 'closeAllTasks') ]
 ]).resize()
 
 const prev15TasksInlineKeyboard = Markup.inlineKeyboard([
     [ Markup.button.callback('« Предыдущие 15', 'prev15') ],
+    [ Markup.button.callback('📥 Скачать стикеры PDF', 'downloadStickers') ],
     [ Markup.button.callback('❌ Закрыть', 'closeAllTasks') ]
 ]).resize()
 
@@ -30,6 +32,7 @@ const prevNext15TasksInlineKeyboard = Markup.inlineKeyboard([
         Markup.button.callback('« Предыдущие 15', 'prev15'),
         Markup.button.callback('Следующие 15 »', 'next15')
     ],
+    [ Markup.button.callback('📥 Скачать стикеры PDF', 'downloadStickers') ],
     [ Markup.button.callback('❌ Закрыть', 'closeAllTasks') ]
 ]).resize()
 
