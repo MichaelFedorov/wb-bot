@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { ordersUrl, stocksUrl } = require('../../config');
+const { ordersUrl, stocksUrl, stickersPdfUrl } = require('../../config');
 
 const getStocks = async (ctx) =>  {
     // TODO: check if stocks in session then not to call api
@@ -58,6 +58,7 @@ const getTasks = async (ctx, status) => {
 const getTasksMsg = async (ctx) => {
   let msg = '';
   const tasks = ctx.session?.tasks?.slice(ctx.session?.firstTask, ctx.session?.lastTask);
+  ctx.session.tasksForStickers = tasks;
   if (tasks?.length > 0) {
       tasks?.forEach((task, index) => {
           msg = `${msg}
@@ -76,7 +77,26 @@ const getTasksMsg = async (ctx) => {
   return msg;
 }
 
+const getStickersPdf = async (ctx) =>  {
+  const orderIds = ctx.session?.tasksForStickers.map(tasks => {
+      return Number.parseInt(tasks.orderId)
+  })
+  await axios.post(`${stickersPdfUrl}`, { orderIds }, {
+    headers: {
+      authorization: ctx.session.user?.wbApiKey,
+    }
+  })
+  .then((response) => {
+    let buff = new Buffer.from(response?.data.data.file, 'base64');
+    ctx.telegram.sendDocument( ctx.chat.id, { source: buff, filename: 'stickers.pdf'});
+  })
+  .catch((e) => {
+    console.log(e);
+  })
+}
+
 module.exports = {
     getTasks,
     getTasksMsg,
+    getStickersPdf
 }

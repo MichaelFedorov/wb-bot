@@ -20,7 +20,7 @@ sales.enter(async (ctx) => {
         console.error(e);
     }
 });
-sales.hears('⬅️ Вернуться', ctx => {
+sales.hears('⬅️ Вернуться в главное меню', ctx => {
     ctx.session.replaceApi = false;
     ctx.scene.leave()
 })
