@@ -10,7 +10,7 @@ let client = new faunadb.Client({
   scheme: 'https'
 });
 
-const regExp = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+const regExp = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]/i;
 
 const validateEmail = (email) => {
     return regExp.test(email)
