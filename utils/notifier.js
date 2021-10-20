@@ -9,7 +9,7 @@ const startNotifications = async (ctx) => {
 	ctx.session.prevTasksTotal = 0;
 	manager.add(
 		`notification_tasks_${ctx.session.user.id}`,
-		'*/20 * * * * *',
+		'* */10 * * * *',
 		async () => {
 			await checkForNewTasks(ctx);
 		},
