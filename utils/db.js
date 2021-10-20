@@ -1,5 +1,4 @@
 require('dotenv').config()
-const { dbToken } = require("../config");
 const faunadb = require("faunadb");
 const {
   Create,
@@ -17,7 +16,7 @@ const {
   Update
 } = faunadb.query;
 let client = new faunadb.Client({
-  secret: dbToken,
+  secret: process.env.FDB_FQL_SERVER_KEY,
   domain: 'db.eu.fauna.com',
   scheme: 'https'
 });
