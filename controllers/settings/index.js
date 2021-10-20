@@ -37,9 +37,9 @@ settings.on('text', async ctx => {
         } else {
             await ctx.replyWithHTML(`❗️Хм… Введённый API ключ не принимается серверами Wildberries. Проверьте, пожалуйста, и введите его снова.
 
-            Если ошибка повторяется, попробуйте создать новый ключ для работы с ботом. Это просто: зайдите в личный кабинет WB -> Мой профиль -> Доступ к новому API и нажмите Сгенерировать токен.
+Если ошибка повторяется, попробуйте создать новый ключ для работы с ботом. Это просто: зайдите в личный кабинет WB -> Мой профиль -> Доступ к новому API и нажмите Сгенерировать токен.
             
-            Если не получается, напишите в @SellerGoChat, всё решим`);
+Если не получается, напишите в @SellerGoChat, всё решим.`);
         }
     }
 })
@@ -52,7 +52,7 @@ settings.action('confirm', async ctx =>{
     await startNotifications(ctx);
     ctx.session.replaceApi = false;
     ctx.session.newApiKey = '';
-    return await ctx.reply("Ключ успешно изменен!");
+    return await ctx.reply("Ключ успешно изменен! Полёт нормальный!");
 })
 
 settings.action('cancel', async ctx =>{
@@ -62,8 +62,5 @@ settings.action('cancel', async ctx =>{
     ctx.session.newApiKey = '';
     return await ctx.reply("Замена ключа отменена.");
 })
-
-
-//addKey.enter
 
 module.exports = settings;
