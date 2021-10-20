@@ -5,8 +5,9 @@ const startWizard = require('./controllers/start');
 const tasksScene = require('./controllers/tasks');
 const settingsScene = require('./controllers/settings');
 const salesScene = require('./controllers/sales');
+const config = require('./config');
 
-const bot = new Telegraf(process?.env?.BOT_TOKEN);
+const bot = new Telegraf(config.token);
 
 const stage = new Stage([
 	startWizard,

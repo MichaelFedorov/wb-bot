@@ -5,5 +5,7 @@ module.exports = {
     stickersPdfUrl: `${apiHost}/api/v2/orders/stickers/pdf`,
     updateOrderStatusUrl: `${apiHost}/api/v2/orders`,
     authorizationKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NJRCI6IjA2N2QwMDM2LWJiZmUtNDJiNi05ZjZlLTRlNGE5YTgzN2M2YSJ9.C-X8ply9m7YQK1jJz3XiqB8SrKkLiEgjEGTyEygNelA',
-    admins: [9746,1446196]
+    admins: [9746,1446196],
+    token: '2052853039:AAGqHthJKgs3NqnvEN_MSzsn5oOUXnsqJvA',
+    dbToken: 'fnAEV-SOclAAxXM6OEFUanhaH8t5_NvKT9pOoXYp'
 }
