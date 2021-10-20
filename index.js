@@ -16,10 +16,8 @@ const stage = new Stage([
 ]);
 
 stage.command('start', ctx => {
-	// console.log(process.env.BETA_USERS)
 	const betaUsers = process.env.BETA_USERS.split(",");
-	
-	if (betaUsers.findIndex(ctx.from.username.toLowerCase()) !== -1) {
+	if (betaUsers.indexOf(ctx.from.username.toLowerCase()) !== -1) {
 		ctx.scene.leave();
 		ctx.scene.enter('start')
 	} else {
