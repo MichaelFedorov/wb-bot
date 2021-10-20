@@ -9,7 +9,7 @@ const startNotifications = async (ctx) => {
 	ctx.session.prevTasksTotal = 0;
 	manager.add(
 		`notification_tasks_${ctx.session.user.id}`,
-		'* */10 * * * *',
+		'*/20 * * * * *',
 		async () => {
 			await checkForNewTasks(ctx);
 		},
@@ -20,24 +20,29 @@ const startNotifications = async (ctx) => {
 }
 
 const getStocks = async (ctx) =>  {
-	await axios.get(`${stocksUrl}`, {
+	return await axios.get(`${stocksUrl}`, {
 		headers: {
 			authorization: ctx.session.user.wbApiKey,
 		}
 	})
 	.then((response) => {
 		ctx.session.stocks = response.data.stocks;
+		return true;
 	})
     .catch((e) => {
         console.error(e);
-		return ctx.reply('❗️Используемый ранее ключ неактивен. Нотификации отлключены. Для правильной работы необходимо заменить его в Настройках бота.');
+		return false
     })
 }
 
 const checkForNewTasks = async (ctx) => {
 	const date = new Date( Date.now() - 1000 * 600 ).toISOString();
 	let tasks = [];
-	await getStocks(ctx);
+	const isStosks = await getStocks(ctx);
+	if (!isStosks) {
+		ctx.reply('❗️Используемый ранее ключ неактивен. Для правильной работы и получения уведомлений необходимо заменить его в Настройках бота');
+		return;
+	};
 
 	try {
 
@@ -51,7 +56,6 @@ const checkForNewTasks = async (ctx) => {
 		})
 		.catch((e) => {
 			console.error(e);
-			return ctx.reply('❗️Используемый ранее ключ неактивен. Нотификации отлключены. Для правильной работы необходимо заменить его в Настройках бота.');
 		})
 
 		if (ctx.session.prevTasksTotal === tasks.length) return;
