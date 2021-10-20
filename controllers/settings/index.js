@@ -1,13 +1,11 @@
 const { Scenes : { BaseScene } } = require('telegraf');
 
 const { isApiKeyValid } = require("../../utils/common");
-const { mainKeyboard, settingsKeyboard } = require('../../utils/keyboards');
+const { settingsKeyboard } = require('../../utils/keyboards');
 const { confirmationInlineKeyboard } = require('./helpers');
 
-const {returnToMainScreen} = require("../../utils/common");
 const { updateFieldDB } = require("../../utils/db");
 const { startNotifications } = require("../../utils/notifier");
-const {  } = require('./actions');
 
 const settings = new BaseScene('settings');
 
@@ -20,15 +18,6 @@ settings.enter(async (ctx) => {
         console.error(e);
     }
 });
-settings.hears('⬅️ Вернуться в главное меню', async ctx => {
-    ctx.session.replaceApi = false;
-    return await ctx.scene.leave();
-})
-
-settings.command('start', async ctx => {
-    ctx.session.replaceApi = false;
-    return await ctx.scene.leave();
-})
 
 settings.hears('🔑 Заменить API Ключ', async ctx => {
     ctx.session.replaceApi = true;
@@ -39,16 +28,18 @@ settings.on('text', async ctx => {
     // Checking if replaceAPi selected then validate the key
     if (ctx.session.replaceApi) {
         const apiKey = ctx.message.text;
-        await ctx.reply('Выполняется проверка API ключа ...');
+        await ctx.reply('Идет проверка API ключа...');
         const isApiValid = await isApiKeyValid(apiKey);
         if (isApiValid) {
             ctx.session.newApiKey = apiKey;
             ctx.session.replaceApi = false;
             await ctx.reply('Введенный ключ валиден. Заменить?', confirmationInlineKeyboard);
         } else {
-            await ctx.replyWithHTML(`❗️ <b>Введеный вами API ключ невалиден.</b>
-Проверьте, пожалуйста, и введите снова.
-Если ошибка повторяется, попробуйте создать новый ключ для работы с ботом или свяжитесь с нами.`);
+            await ctx.replyWithHTML(`❗️Хм… Введённый API ключ не принимается серверами Wildberries. Проверьте, пожалуйста, и введите его снова.
+
+            Если ошибка повторяется, попробуйте создать новый ключ для работы с ботом. Это просто: зайдите в личный кабинет WB -> Мой профиль -> Доступ к новому API и нажмите Сгенерировать токен.
+            
+            Если не получается, напишите в @SellerGoChat, всё решим`);
         }
     }
 })
@@ -61,8 +52,6 @@ settings.action('confirm', async ctx =>{
     await startNotifications(ctx);
     ctx.session.replaceApi = false;
     ctx.session.newApiKey = '';
-
-    // TODO restart notification with new key
     return await ctx.reply("Ключ успешно изменен!");
 })
 
@@ -74,9 +63,6 @@ settings.action('cancel', async ctx =>{
     return await ctx.reply("Замена ключа отменена.");
 })
 
-settings.leave(async ctx => {
-  await returnToMainScreen(ctx);
-});
 
 //addKey.enter
 

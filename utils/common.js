@@ -3,7 +3,7 @@ const {mainKeyboard} = require("./keyboards");
 const { ordersUrl, stocksUrl } = require('../config');
 
 const returnToMainScreen = async ctx => {
-  await ctx.reply('Чем могу помочь?', mainKeyboard);
+  await ctx.reply('Что будем проверять?', mainKeyboard);
 }
 
 const sleep = sec => {
