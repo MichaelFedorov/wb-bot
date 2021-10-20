@@ -35,7 +35,9 @@ const initiateSubscription = async (user, subscriptionType) => {
     "interval":"Month",
     "period":getPeriodByType(subscriptionType)
   }
-  const cloudPayApi = client.getClientApi()
+  const cloudPayApi = client.getClientApi({
+    endpoint: 'https://api.cloudpayments.ru/test', // test endpoint for validation
+  })
   const response = await cloudPayApi.createSubscription(data)
   console.log({response})
   return response
