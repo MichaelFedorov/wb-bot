@@ -1,11 +1,11 @@
 const faunadb = require("faunadb");
 const axios = require("axios");
-const {ordersUrl, dbToken} = require("../../config");
+const {ordersUrl} = require("../../config");
 
 const { Select, Get, Match, Identify, Index, Create, Collection, Paginate } = faunadb.query;
 
 let client = new faunadb.Client({
-  secret: dbToken,
+  secret: process.env.FDB_FQL_SERVER_KEY,
   domain: 'db.eu.fauna.com',
   scheme: 'https'
 });
