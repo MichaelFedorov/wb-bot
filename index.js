@@ -15,10 +15,14 @@ const stage = new Stage([
   salesScene
 ]);
 
-
 stage.command('start', ctx => {
-	ctx.scene.leave();
-	ctx.scene.enter('start')
+	const betaUsers = process.env.BETA_USERS.split(",");
+	if (betaUsers.indexOf(ctx.from.username.toLowerCase()) !== -1) {
+		ctx.scene.leave();
+		ctx.scene.enter('start')
+	} else {
+		ctx.reply('Это бета версия бота. Если хотите участовать в тестировании, напишите нам в группу @SellerGoChat');
+	}
 })
 stage.hears('⬅️ Вернуться в главное меню', async ctx => {
     //ctx.session?.replaceApi = false;
