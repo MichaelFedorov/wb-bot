@@ -64,14 +64,14 @@ const getTasksMsg = async (ctx) => {
       tasks?.forEach((task, index) => {
           msg = `${msg}
 --------------
-📦 0${ctx.session.firstTask + index + 1}  |  <b>${task.subject}</b>  |  ${task.article}  |  ${task.size.split('/')[0]}  |  ${task.totalPrice/100} ₽  |  шк ${task.barcode}  |  стикер ${task.sticker.wbStickerId}
+📦 0${ctx.session.firstTask + index + 1}  |  <b>${task.subject}</b>  |  ${task.article}  |  ${task.size?.split('/')[0]}  |  ${task.totalPrice/100} ₽  |  шк ${task.barcode}  |  стикер ${task.sticker?.wbStickerId}
 <b>В наличии:</b> ${task.stock} шт.
   `});
 
       msg +=
       `
 
-Показано c <b>${ctx.session.firstTask + 1}</b> по <b>${ctx.session.lastTask}</b> из <b>${ctx.session.tasks.length}</b> заданий. `;
+Показано c <b>${ctx.session.firstTask + 1}</b> по <b>${ctx.session.lastTask}</b> из <b>${ctx.session.tasks?.length}</b> заданий. `;
   } else {
       msg = 'Заданий пока нет. Не волнуйтесь, скоро начнут покупать!'
   }
@@ -88,7 +88,7 @@ const getStickersPdf = async (ctx) =>  {
     }
   })
   .then((response) => {
-    let buff = new Buffer.from(response?.data.data.file, 'base64');
+    let buff = new Buffer.from(response?.data.data?.file, 'base64');
     ctx.telegram.sendDocument( ctx.chat.id, { 
       source: buff, 
       filename: `stickers_${ctx.session?.firstTask+1}-${ctx.session?.lastTask}.pdf`});

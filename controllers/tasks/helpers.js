@@ -6,10 +6,13 @@ const showTasks = async ctx => {
     ctx.session.firstTask = 0;
     ctx.session.lastTask = ctx.session?.tasks?.length;
     let msg;
-    if (ctx.session?.tasks?.length > 15) {
+    if (ctx.session.lastTask > 15) {
         ctx.session.lastTask = 15;
         msg = await getTasksMsg(ctx);
         return await ctx.replyWithHTML(msg, next15TasksInlineKeyboard);
+    } else if (ctx.session.lastTask > 0 && ctx.session.lastTask < 15) {
+        msg = await getTasksMsg(ctx, true);
+        return await ctx.replyWithHTML(msg, onePageInlineKeyboard);
     }
     msg = await getTasksMsg(ctx, true);
     return await ctx.replyWithHTML(msg, closeAllInlineKeyboard);
@@ -36,6 +39,11 @@ const prevNext15TasksInlineKeyboard = Markup.inlineKeyboard([
     [ Markup.button.callback('❌ Закрыть', 'closeAllTasks') ]
 ]).resize()
 
+const onePageInlineKeyboard =  Markup.inlineKeyboard([
+    [ Markup.button.callback('📥 Скачать стикеры PDF', 'downloadStickers') ],
+    [ Markup.button.callback('❌ Закрыть', 'closeAllTasks') ]
+]).resize()
+
 const closeAllInlineKeyboard =  Markup.inlineKeyboard([
     Markup.button.callback('❌ Закрыть', 'closeAllTasks')
 ]).resize()
@@ -46,5 +54,6 @@ module.exports = {
     next15TasksInlineKeyboard,
     prev15TasksInlineKeyboard,
     prevNext15TasksInlineKeyboard,
+    onePageInlineKeyboard,
     closeAllInlineKeyboard
 }

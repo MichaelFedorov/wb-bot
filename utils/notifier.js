@@ -20,46 +20,57 @@ const startNotifications = async (ctx) => {
 }
 
 const getStocks = async (ctx) =>  {
-	await axios.get(`${stocksUrl}`, {
+	return await axios.get(`${stocksUrl}`, {
 		headers: {
 			authorization: ctx.session.user.wbApiKey,
 		}
 	})
 	.then((response) => {
 		ctx.session.stocks = response.data.stocks;
+		return true;
 	})
     .catch((e) => {
         console.error(e);
+		return false
     })
 }
 
 const checkForNewTasks = async (ctx) => {
 	const date = new Date( Date.now() - 1000 * 600 ).toISOString();
 	let tasks = [];
-	await getStocks(ctx);
+	const isStosks = await getStocks(ctx);
+	if (!isStosks) {
+		ctx.reply('❗️Используемый ранее ключ неактивен. Для правильной работы и получения уведомлений необходимо заменить его в Настройках бота');
+		return;
+	};
 
-	await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
-		headers: {
-			authorization: ctx.session.user.wbApiKey
-		}
-	})
-	.then((response) => {
-		tasks = response.data.orders.filter(item => item.status === 0);
-	})
-	.catch((e) => {
-		console.error(e);
-	})
+	try {
 
-	if (ctx.session.prevTasksTotal === tasks.length) return;
+		await axios.get(`${ordersUrl}${date}&take=1000&skip=0`, {
+			headers: {
+				authorization: ctx.session.user.wbApiKey
+			}
+		})
+		.then((response) => {
+			tasks = response.data.orders.filter(item => item.status === 0);
+		})
+		.catch((e) => {
+			console.error(e);
+		})
 
-	ctx.session.newTasksN = tasks?.map(task => {
-		return {
-			...task,
-			...ctx.session.stocks.find(item => item.barcode === task.barcode)
-		}
-	});
-	ctx.session.prevTasksTotal = tasks.length;
-	await notifyUser(ctx);
+		if (ctx.session.prevTasksTotal === tasks.length) return;
+
+		ctx.session.newTasksN = tasks?.map(task => {
+			return {
+				...task,
+				...ctx.session.stocks.find(item => item.barcode === task.barcode)
+			}
+		});
+		ctx.session.prevTasksTotal = tasks.length;
+		await notifyUser(ctx);
+	} catch(err) {
+		console.error(err)
+	}
 }
 
 const notifyUser = async ctx => {
@@ -68,10 +79,11 @@ const notifyUser = async ctx => {
 		const msg = getMsg(task);
 		await sleep(2);
 		// TODO: check if we can send photo
-		await ctx.replyWithPhoto(`https://images.wbstatic.net/big/new/33420000/33425311-1.jpg`, {
-			parse_mode: 'HTML',
-			caption: msg
-		});
+		// await ctx.replyWithPhoto(`https://images.wbstatic.net/big/new/33420000/33425311-1.jpg`, {
+		// 	parse_mode: 'HTML',
+		// 	caption: msg
+		// });
+		await ctx.replyWithHTML(msg);
 	}
 }
 
