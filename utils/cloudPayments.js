@@ -1,3 +1,4 @@
+require('dotenv').config();
 const axios = require('axios')
 const CP_API = {
   create: 'https://api.cloudpayments.ru/test/subscriptions/create'
@@ -5,7 +6,9 @@ const CP_API = {
 
 const { ClientService } = require('cloudpayments');
 const client = new ClientService({
-  endpoint: 'https://api.cloudpayments.ru/test', // test endpoint for validation
+  endpoint: 'https://api.cloudpayments.ru', // test endpoint for validation
+  privateKey: process.env.PASSWORD_CLOUD_PAYMENTS,
+  publicId: process.env.PUBLIC_ID_CLOUD_PAYMENTS
 });
 
 const getPeriodByType = (type) => {
@@ -37,6 +40,8 @@ const initiateSubscription = async (user, subscriptionType) => {
   }
   const cloudPayApi = client.getClientApi({
     endpoint: 'https://api.cloudpayments.ru/test', // test endpoint for validation
+    privateKey: process.env.PASSWORD_CLOUD_PAYMENTS,
+    publicId: process.env.PUBLIC_ID_CLOUD_PAYMENTS
   })
   const response = await cloudPayApi.createSubscription(data)
   console.log({response})
