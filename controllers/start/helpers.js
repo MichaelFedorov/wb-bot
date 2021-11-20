@@ -1,14 +1,7 @@
-const faunadb = require("faunadb");
-const axios = require("axios");
-const {ordersUrl} = require("../../config");
-
-const { Select, Get, Match, Identify, Index, Create, Collection, Paginate } = faunadb.query;
-
-let client = new faunadb.Client({
-  secret: process.env.FDB_FQL_SERVER_KEY,
-  domain: 'db.eu.fauna.com',
-  scheme: 'https'
-});
+const {MongoClient} = require('mongodb');
+const uri = 'mongodb+srv://localhost?retryWrites=true&w=majority'
+const client = new MongoClient(uri);
+const dbName = process.env.DB_NAME || 'wb_bot_test'
 
 const regExp = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]/i;
 
@@ -17,43 +10,49 @@ const validateEmail = (email) => {
 }
 
 const findUserByEmail = async email => {
-    try {
-        const _res = await client.query(
-          Select(["ref"], Get(Match(Index("email"), email)))
-        );
-        return _res;
-    } catch (e) {
-        console.log(e.status);
-    }
+  // Connect to the MongoDB cluster
+  await client.connect();
+  try {
+      return await client.db(dbName).collection("Users").findOne({ email: email });
+  } catch (e) {
+      console.log(e.status);
+  } finally {
+    await client.close();
+  }
 };
 
-const matchUserIdWithAoiKey = async (id, key) => {
+const matchUserIdWithApiKey = async (id, key) => {
+  // Connect to the MongoDB cluster
+    await client.connect();
     try {
-        const _id = await client.query(
-          Identify(Match(Index("id"), user), key)
-        );
+        const _id = await client.db(dbName).collection("Users").findOne({ id: id });// await client.query(Identify(Match(Index("id"), user), key));
         console.log(_id);
     } catch (e) {
         console.log(e);
+    } finally {
+      await client.close();
     }
 };
 
 const validateApiByUserId = async (userId, wbApiKey) => {
   try {
-    const keyUsedBy = client.query(
-      Paginate(Match(Index('wbApiKey'), wbApiKey))
-    )
+    // Connect to the MongoDB cluster
+    await client.connect();
+
+    const keyUsedBy = await client.db(dbName).collection("Users").findOne({ wbApiKey: wbApiKey, id: userId });
     console.log(keyUsedBy)
-    return keyUsedBy?.data?.length > 0;
+    return !!keyUsedBy;
   } catch (e) {
-    console.error(e)
+    console.error(e);
     return false
+  } finally {
+    await client.close();
   }
 };
 
 module.exports = {
   findUserByEmail,
-  matchUserIdWithAoiKey,
+  matchUserIdWithApiKey,
   validateEmail,
   validateApiByUserId
 }
