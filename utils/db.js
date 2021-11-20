@@ -2,8 +2,12 @@ require('dotenv').config()
 const {MongoClient} = require('mongodb');
 
 const dbName = process?.env?.DB_NAME || 'wb_bot_test'
+const dbUserName = process?.env?.DB_USER_NAME || 'freewayspb'
+const dbPassword = process?.env?.DB_PASSWORD || ''
+const dbHost = process?.env?.DB_HOST || 'localhost'
+
 // URI link to mongoDb
-const uri = 'mongodb://localhost?retryWrites=true&w=majority'
+const uri = `mongodb://${dbUserName}:${dbPassword}@${dbHost}/${dbName}?retryWrites=true&w=majority`
 const client = new MongoClient(uri);
 
 const createUser = async user => {
