@@ -1,8 +1,0 @@
-{
-  "name": "wb-bot",
-  "description": "First version of telegram bot for quick and pleasure processing orders on wildberries marketplace",
-  "repository": "https://github.com/freewayspb/wb-bot",
-  "logo": "https://cdn.rawgit.com/heroku/node-js-getting-started/main/public/node.svg",
-  "keywords": ["node", "express", "heroku"],
-  "image": "heroku/nodejs"
-}
