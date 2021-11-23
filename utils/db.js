@@ -7,7 +7,9 @@ const dbPassword = process?.env?.DB_PASSWORD || ''
 const dbHost = process?.env?.DB_HOST || 'localhost'
 
 // URI link to mongoDb
-const uri = `mongodb://${dbUserName}:${dbPassword}@${dbHost}/${dbName}?retryWrites=true&w=majority`
+const uri = process?.env?.NODE_ENV === 'production'
+  ? `mongodb://${dbUserName}:${dbPassword}@${dbHost}/${dbName}?retryWrites=true&w=majority`
+  : `mongodb://${dbHost}/${dbName}?retryWrites=true&w=majority`
 const client = new MongoClient(uri);
 
 const createUser = async user => {
