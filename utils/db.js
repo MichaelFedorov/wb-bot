@@ -8,7 +8,7 @@ const dbHost = process?.env?.DB_HOST || 'localhost'
 
 // URI link to mongoDb
 const uri = process?.env?.NODE_ENV === 'production'
-  ? `mongodb://${dbUserName}:${dbPassword}@${dbHost}/?retryWrites=true&w=majority&authMechanism=DEFAULT&authSource=${dbName}`
+  ? `mongodb://${dbUserName}:${dbPassword}@${dbHost}/${dbName}?retryWrites=true&w=majority&authMechanism=DEFAULT&authSource=${dbName}`
   : `mongodb://${dbHost}/${dbName}?retryWrites=true&w=majority`
 const client = new MongoClient(uri);
 
