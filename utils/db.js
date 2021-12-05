@@ -1,94 +1,80 @@
 require('dotenv').config()
-const faunadb = require("faunadb");
-const {
-  Create,
-  Collection,
-  Get,
-  Ref,
-  Map,
-  Paginate,
-  Documents,
-  Var,
-  Lambda,
-  Select,
-  Match,
-  Index,
-  Update
-} = faunadb.query;
-let client = new faunadb.Client({
-  secret: process.env.FDB_FQL_SERVER_KEY,
-  domain: 'db.eu.fauna.com',
-  scheme: 'https'
-});
+const {MongoClient} = require('mongodb');
+
+const dbName = process?.env?.DB_NAME || 'wb_bot_test'
+const dbUserName = process?.env?.DB_USER_NANE || 'freewayspb'
+const dbPassword = process?.env?.DB_PASSWORD || ''
+const dbHost = process?.env?.DB_HOST || 'localhost'
+
+// URI link to mongoDb
+const uri = `mongodb://${dbUserName}:${dbPassword}@${dbHost}/${dbName}?retryWrites=true&w=majority&authMechanism=DEFAULT&authSource=admin`;
+const client = new MongoClient(uri);
 
 const createUser = async user => {
   try {
-    const userData = await client.query(
-      Create(
-        Ref(Collection('Users'), user.id),
-        {data: {...user}},
-      )
-    );
-    return userData;
+
+    // Connect to the MongoDB cluster
+    await client.connect();
+
+    const result = await client.db(dbName).collection("Users")
+      .updateOne({id: user?.id}, {$set: user}, {upsert: true});
+    return result?.upsertedCount ? {...user, _id: { "$oid": result?.upsertedId}} : null
   } catch (e) {
     console.error(e)
+  } finally {
+    await client.close();
   }
 };
 
 const isUserAlreadyCreated = async id => {
   try {
-    const userData = await client.query(
-      Get(
-        Ref(
-          Collection('Users'),
-          id
-        )
-      )
-    );
-    return userData?.data?.id === id ? userData?.data : null;
+    // Connect to the MongoDB cluster
+    await client.connect();
+
+    const userData = await client.db(dbName).collection("Users").findOne({ id: id });
+    return userData?.id === id ? userData : null;
   } catch (e) {
-    console.error(e)
+    console.error(e);
+  } finally {
+    await client.close();
   }
 }
 
 const getAllUsers = async () => {
   try {
-    const users = await client.query(
-      Map(
-        Paginate(Documents(Collection("Users"))),
-        Lambda("X", Get(Var("X")))
-      )
-    )
-    return users?.data
+    // Connect to the MongoDB cluster
+    await client.connect();
+    return await client.db(dbName).collection("Users")
   } catch (e) {
     console.log('error', e)
+  } finally {
+    await client.close();
   }
 }
 
 const findUserById = async id => {
   try {
-    return await client.query(
-      Select(["ref"], Get(Match(Index("id"), id)))
-    );
+    // Connect to the MongoDB cluster
+    await client.connect();
+
+    return await client.db(dbName).collection("Users").findOne({ id: id });
   } catch (e) {
-    console.log(e.status);
+    console.error(e);
+  } finally {
+    await client.close();
   }
 };
 
 const updateFieldDB = async (user, fieldName, value) => {
   try {
-    return await client.query(
-      Update(
-        Ref(Collection('Users'), user.id),
-        {
-          data: {
-            [fieldName]: value,
-          },
-        },
-      )
-    );
+    // Connect to the MongoDB cluster
+    await client.connect();
+
+    return await client.db(dbName).collection("Users").updateOne({ id: user?.id }, { $set: {...user, [fieldName]: value} });
   } catch (e) {
-    console.log(e.status)
+    console.error(e);
+  } finally {
+    await client.close();
   }
 }
 
