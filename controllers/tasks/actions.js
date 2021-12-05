@@ -19,7 +19,7 @@ const getStocks = async (ctx) =>  {
 const getTasks = async (ctx, status) => {
   const date = new Date();
   date.setDate(date.getDate() - 5);
-  if(!ctx.session.stock) { 
+  if(!ctx.session.stock) {
     await getStocks(ctx);
   }
 
@@ -89,8 +89,8 @@ const getStickersPdf = async (ctx) =>  {
   })
   .then((response) => {
     let buff = new Buffer.from(response?.data.data?.file, 'base64');
-    ctx.telegram.sendDocument( ctx.chat.id, { 
-      source: buff, 
+    ctx.telegram.sendDocument( ctx.chat.id, {
+      source: buff,
       filename: `stickers_${ctx.session?.firstTask+1}-${ctx.session?.lastTask}.pdf`});
   })
   .catch((e) => {
