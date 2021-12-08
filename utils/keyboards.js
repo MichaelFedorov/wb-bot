@@ -1,4 +1,4 @@
-const { Markup } = require('telegraf');
+const {Markup} = require('telegraf');
 
 /**
  * Returns back keyboard and its buttons according to the language
@@ -17,10 +17,10 @@ const { Markup } = require('telegraf');
 // };
 
 const mainKeyboard = Markup.keyboard([
-    ["📦 Сборочные задания", "💰 Продажи"],
-    ["⚙️ Настройки",],
-    ["✍️ Связаться с нами"]
-  ])
+  ["📦 Сборочные задания", "💰 Продажи"],
+  ["⚙️ Настройки","Подписка"],
+  ["✍️ Связаться с нами"]
+])
   .resize()
 
 const tasksKeyboard = Markup.keyboard([
@@ -28,14 +28,14 @@ const tasksKeyboard = Markup.keyboard([
   ["⚒ На сборке", "🚚 Собранные"],
   ["⬅️ Вернуться в главное меню"]
 ])
-.resize();
+  .resize();
 
 const settingsKeyboard = Markup.keyboard([
   ["🔑 Заменить API Ключ"],
   //["🚹 Добавить пользователя"],
   ["⬅️ Вернуться в главное меню"]
 ])
-.resize();
+  .resize();
 
 const salesKeyboard = Markup.keyboard([
   ["Продажи за сегодня"],
@@ -43,9 +43,25 @@ const salesKeyboard = Markup.keyboard([
 ])
   .resize();
 
+const subscriptionsOnKeyboard = Markup.keyboard([
+  ["Проверить дату окончания подписки"],
+  ["Отменить подписку"],
+  ["⬅️ Вернуться"]
+])
+  .resize();
+
+const subscriptionsOffKeyboard = Markup.keyboard([
+  ["Оформить подписку"],
+  ["Условия подписки"],
+  ["⬅️ Вернуться"]
+])
+  .resize();
+
 module.exports = {
   mainKeyboard,
   tasksKeyboard,
   settingsKeyboard,
-  salesKeyboard
+  salesKeyboard,
+  subscriptionsOnKeyboard,
+  subscriptionsOffKeyboard
 }

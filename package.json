@@ -5,6 +5,7 @@
     },
     "dependencies": {
         "axios": "^0.21.2",
+        "cloudpayments": "^6.0.1",
         "cron-job-manager": "^2.1.4",
         "dotenv": "^10.0.0",
         "faunadb": "^4.4.1",

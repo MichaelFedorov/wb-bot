@@ -10,7 +10,7 @@ const {
   isUserAlreadyCreated
 } = require("../../utils/db");
 
-const askEmail = async (ctx, next) => {
+const askEmail = async (ctx) => {
   const user = await isUserAlreadyCreated(ctx.from.id)
     .then(r => {
       return r
@@ -30,7 +30,6 @@ const askEmail = async (ctx, next) => {
         `Привет, ${ctx?.from?.first_name}!`,
         mainKeyboard
       );
-      
       return await ctx.scene.leave();
     } else {
       ctx.reply('❗️Используемый ранее ключ неактивен. Для правильной работы необходимо заменить его в Настройках бота.', mainKeyboard);
@@ -48,7 +47,7 @@ const emailHandler = Telegraf.on('text', async ctx => {
     ctx.scene.state.email = ctx.message.text;
 
     await ctx.replyWithHTML(
-      `Отлично! Теперь введите <b>токен (API ключ)</b> для работы  от новой версии API. 
+      `Отлично! Теперь введите <b>токен (API ключ)</b> для работы  от новой версии API.
 
 Чтобы скопировать токен, зайдите в личный кабинет WB -> Мой профиль -> Доступ к новому API и нажмите Сгенерировать токен.
     `);
@@ -73,17 +72,19 @@ const apiHandler = Telegraf.on('text', async ctx => {
         wbApiKey,
         name: `${ctx?.from?.first_name} ${ctx?.from?.last_name}`,
         // TODO notification based on payment
-        notification: true
+        notification: true,
+        /* initial subscription for next 5 days */
+        subscribeValid: new Date(new Date().getTime() + 5*24*60*60*1000).toISOString()
       }
       ctx.session.user = await createUser({...user}).then(r => r?.data)
-      console.log('new user added', ctx.session.user?.data)
+      console.log('new user added', ctx.session.user)
 
       await ctx.reply(
         `Супер! У вас активирован бесплатный пробный период на 5 дней.
 
-Теперь вы будете получать уведомления о новых сборочных заданиях в telegram. 
+Теперь вы будете получать уведомления о новых сборочных заданиях в telegram.
 
-Кроме того, предлагаем ознакомиться со всеми возможностями бота в главном меню. 
+Кроме того, предлагаем ознакомиться со всеми возможностями бота в главном меню.
         `,
         mainKeyboard
       );

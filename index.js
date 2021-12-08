@@ -5,6 +5,7 @@ const startWizard = require('./controllers/start');
 const tasksScene = require('./controllers/tasks');
 const settingsScene = require('./controllers/settings');
 const salesScene = require('./controllers/sales');
+const subscribeScene = require('./controllers/subscriptions');
 
 const bot = new Telegraf(process?.env?.BOT_TOKEN);
 
@@ -12,7 +13,8 @@ const stage = new Stage([
 	startWizard,
 	tasksScene,
 	settingsScene,
-  salesScene
+  salesScene,
+  subscribeScene
 ]);
 
 
@@ -35,8 +37,7 @@ bot.hears('⚙️ Настройки', ctx => ctx.scene.enter('settings'));
 //bot.hears('💰 Продажи', ctx => ctx.scene.enter('sales'));
 bot.hears('💰 Продажи', ctx => ctx.reply('В разработке...'));
 bot.hears('✍️ Связаться с нами', ctx => ctx.reply('Чтобы связаться с нами и задать вопрос, оставьте сообщение в @SellerGoChat'));
-
-
+bot.hears('Подписка', ctx => ctx.scene.enter('subscribe'));
 
 // bot.action('accept', async (ctx) => {
 // 	await ctx.answerCbQuery();
